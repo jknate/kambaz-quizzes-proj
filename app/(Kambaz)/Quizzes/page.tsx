@@ -5,7 +5,7 @@ import { FaBook } from "react-icons/fa6";
 import QuizzesControls from "./QuizzesControls";
 import { BsGripVertical } from "react-icons/bs";
 import QuizzesControlButtons from "./QuizzesControlButtons";
-export default function Assignments() {
+export default function Quizzes() {
   return (
     <><div>
       <QuizzesControls /><br /><br /><br /><br />
