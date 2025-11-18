@@ -1,4 +1,4 @@
-const HTTP_SERVER = "https://kambaz-node-server-app-ttnj.onrender.com";
+const HTTP_SERVER = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const PROXY_SERVER = "/api/proxy";
 
 export default function EnvironmentVariables() {

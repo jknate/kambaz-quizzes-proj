@@ -76,7 +76,7 @@ export default function TOC() {
         </NavLink>
       </NavItem>
       <NavItem>
-        <NavLink href="https://kambaz-node-server-app-ttnj.onrender.com/">
+        <NavLink href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}>
           Live Server
         </NavLink>
       </NavItem>
