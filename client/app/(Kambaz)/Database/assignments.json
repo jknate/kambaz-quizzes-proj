@@ -1,0 +1,242 @@
+[
+  {
+    "_id": "A101",
+    "title": "Propulsion Assignment",
+    "course": "RS101",
+    "description": "Design and analyze a rocket propulsion system",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A102",
+    "title": "Combustion Analysis",
+    "course": "RS101",
+    "description": "Analyze combustion processes in rocket engines",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A103",
+    "title": "Nozzle Design Project",
+    "course": "RS101",
+    "description": "Design an optimized nozzle for a rocket engine",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A201",
+    "title": "Aerodynamics Quiz",
+    "course": "RS102",
+    "description": "Quiz on fundamental aerodynamic principles",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A202",
+    "title": "Flow Analysis",
+    "course": "RS102",
+    "description": "Analyze subsonic and supersonic flow patterns",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A203",
+    "title": "Heating Analysis",
+    "course": "RS102",
+    "description": "Study aerodynamic heating effects",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A301",
+    "title": "Structural Design Task",
+    "course": "RS103",
+    "description": "Design spacecraft structural components",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A302",
+    "title": "Orbital Calculations",
+    "course": "RS103",
+    "description": "Calculate orbital mechanics and trajectories",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A303",
+    "title": "Systems Engineering Exam",
+    "course": "RS103",
+    "description": "Comprehensive exam on spacecraft systems",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A401",
+    "title": "Organic Compounds Worksheet",
+    "course": "RS104",
+    "description": "Identify and name organic compounds and functional groups",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A402",
+    "title": "Reaction Mechanisms Report",
+    "course": "RS104",
+    "description": "Analyze and explain organic reaction mechanisms",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A403",
+    "title": "Organic Synthesis Project",
+    "course": "RS104",
+    "description": "Design a multi-step synthesis of an organic compound",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A501",
+    "title": "Coordination Complexes Lab",
+    "course": "RS105",
+    "description": "Synthesize and analyze coordination compounds",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A502",
+    "title": "Inorganic Reactions Quiz",
+    "course": "RS105",
+    "description": "Quiz on inorganic reaction mechanisms and theories",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A503",
+    "title": "Bioinorganic Chemistry Essay",
+    "course": "RS105",
+    "description": "Research paper on metalloenzymes and their functions",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A601",
+    "title": "Thermodynamics Problem Set",
+    "course": "RS106",
+    "description": "Solve thermodynamics problems involving entropy and free energy",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A602",
+    "title": "Quantum Mechanics Exam",
+    "course": "RS106",
+    "description": "Examination on quantum mechanical principles and applications",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A603",
+    "title": "Kinetics Lab Report",
+    "course": "RS106",
+    "description": "Experimental analysis of reaction rates and mechanisms",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A701",
+    "title": "Elvish Translation Exercise",
+    "course": "RS107",
+    "description": "Translate texts between Sindarin and Quenya",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A702",
+    "title": "Dwarvish Runes Assignment",
+    "course": "RS107",
+    "description": "Study and transcribe Khuzdul inscriptions",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A703",
+    "title": "Ancient Texts Analysis",
+    "course": "RS107",
+    "description": "Analyze and interpret ancient Middle-earth manuscripts",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  },
+  {
+    "_id": "A801",
+    "title": "Alliance Formation Essay",
+    "course": "RS108",
+    "description": "Analyze the formation and success of historical alliances",
+    "points": 100,
+    "dueDate": "2024-05-13",
+    "availableDate": "2024-05-06",
+    "availableUntilDate": "2024-05-20"
+  },
+  {
+    "_id": "A802",
+    "title": "Diplomatic Crisis Simulation",
+    "course": "RS108",
+    "description": "Participate in a diplomatic negotiation simulation",
+    "points": 100,
+    "dueDate": "2024-05-20",
+    "availableDate": "2024-05-13",
+    "availableUntilDate": "2024-05-27"
+  },
+  {
+    "_id": "A803",
+    "title": "Leadership Analysis Paper",
+    "course": "RS108",
+    "description": "Evaluate leadership styles in Middle-earth conflicts",
+    "points": 100,
+    "dueDate": "2024-05-27",
+    "availableDate": "2024-05-20",
+    "availableUntilDate": "2024-06-03"
+  }
+]

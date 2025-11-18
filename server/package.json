@@ -1,0 +1,40 @@
+{
+  "type": "module",
+  "name": "kambaz-quizzes-server",
+  "version": "1.0.0",
+  "description": "Node.js HTTP Web server for the Kambaz Quizzes application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jknate/kambaz-quizzes-proj.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP",
+    "Web",
+    "Development",
+    "CS5610",
+    "CS4550",
+    "Quizzes"
+  ],
+  "author": "Nathaniel Kilonzo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jknate/kambaz-quizzes-proj/issues"
+  },
+  "homepage": "https://github.com/jknate/kambaz-quizzes-proj#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "express-session": "^1.17.3",
+    "dotenv": "^16.0.0",
+    "uuid": "^9.0.0"
+  }
+}

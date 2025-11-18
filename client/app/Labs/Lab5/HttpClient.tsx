@@ -1,0 +1,50 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import * as client from "./client";
+
+export default function HttpClient() {
+  const [welcomeOnClick, setWelcomeOnClick] = useState("");
+  const [welcomeOnLoad, setWelcomeOnLoad] = useState("");
+
+  const fetchWelcomeOnClick = async () => {
+    try {
+      const message = await client.fetchWelcomeMessage();
+      setWelcomeOnClick(message);
+    } catch (e) {
+      setWelcomeOnClick(String(e));
+    }
+  };
+
+  const fetchWelcomeOnLoad = async () => {
+    try {
+      const message = await client.fetchWelcomeMessage();
+      setWelcomeOnLoad(message);
+    } catch (e) {
+      setWelcomeOnLoad(String(e));
+    }
+  };
+
+  useEffect(() => {
+    fetchWelcomeOnLoad();
+  }, []);
+
+  return (
+    <div id="wd-http-client">
+      <h3>HTTP Client (async)</h3>
+      <hr />
+      <h4>Requesting on Click</h4>
+      <button className="btn btn-primary me-2" onClick={fetchWelcomeOnClick}>
+        Fetch Welcome
+      </button>
+      <div>
+        Response from server: <b>{welcomeOnClick}</b>
+      </div>
+      <hr />
+      <h4>Requesting on Load</h4>
+      <div>
+        Response from server: <b>{welcomeOnLoad}</b>
+      </div>
+      <hr />
+    </div>
+  );
+}
