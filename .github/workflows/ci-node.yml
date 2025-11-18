@@ -14,6 +14,7 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x]
+        project: [client, server]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,17 +29,20 @@ jobs:
         with:
           path: |
             ~/.npm
-            node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}-${{ matrix.node-version }}
+            ${{ matrix.project }}/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.project }}-${{ hashFiles(format('{0}/package-lock.json', matrix.project)) }}-${{ matrix.node-version }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-node-${{ matrix.project }}-
 
       - name: Install dependencies
+        working-directory: ${{ matrix.project }}
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
       - name: Run tests
+        working-directory: ${{ matrix.project }}
         run: npm test
 
       - name: Build (if present)
+        working-directory: ${{ matrix.project }}
         run: npm run build --if-present
