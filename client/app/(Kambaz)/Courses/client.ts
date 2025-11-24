@@ -5,6 +5,7 @@ const HTTP_SERVER = process.env.NEXT_PUBLIC_HTTP_SERVER;
 const COURSES_API = `${HTTP_SERVER}/api/courses`;
 const MODULES_API = `${HTTP_SERVER}/api/modules`;
 const USERS_API = `${HTTP_SERVER}/api/users`;
+const QUIZZES_API = `${HTTP_SERVER}/api/quizzes`;
 
 export const fetchAllCourses = async () => {
   const { data } = await axios.get(COURSES_API);
