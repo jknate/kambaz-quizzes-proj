@@ -31,6 +31,7 @@ export default function Dashboard() {
     endDate: "2023-12-15",
     image: "/images/reactjs.jpg",
     description: "New Description",
+    faculty: "",
   });
 
   const isEnrolled = (courseId: string) => {
@@ -66,7 +67,11 @@ export default function Dashboard() {
         <button
           className="btn btn-primary float-end me-2"
           id="wd-add-new-course-click"
-          onClick={() => dispatch(addNewCourse(course))}
+          onClick={() => {
+            if (currentUser && currentUser.role === "FACULTY") {
+              dispatch(addNewCourse({ ...course, faculty: currentUser._id }));
+            }
+          }}
         >
           Add
         </button>
@@ -105,12 +110,22 @@ export default function Dashboard() {
               // If no user is logged in, show all courses (for browsing)
               if (!currentUser) return true;
 
-              // If user is logged in, show only enrolled courses
-              return enrollments.some(
-                (enrollment: any) =>
-                  enrollment.user === currentUser._id &&
-                  enrollment.course === course._id
-              );
+              // Faculty: show only courses they created
+              if (currentUser.role === "FACULTY") {
+                return course.faculty === currentUser._id;
+              }
+
+              // Student: show only enrolled courses
+              if (currentUser.role === "STUDENT") {
+                return enrollments.some(
+                  (enrollment: any) =>
+                    enrollment.user === currentUser._id &&
+                    enrollment.course === course._id
+                );
+              }
+
+              // Default: show all courses
+              return true;
             })
             .map((course: any) => (
               <Col
@@ -157,28 +172,33 @@ export default function Dashboard() {
                       )}
                       {!showAllCourses && (
                         <>
-                          <Button
-                            onClick={(event) => {
-                              event.preventDefault();
-                              setCourse(course);
-                            }}
-                            variant="warning"
-                            className="me-2 float-end"
-                            id="wd-edit-course-click"
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            onClick={(event) => {
-                              event.preventDefault();
-                              dispatch(deleteCourse(course._id));
-                            }}
-                            variant="danger"
-                            className="float-end"
-                            id="wd-delete-course-click"
-                          >
-                            Delete
-                          </Button>
+                          {currentUser.role === "FACULTY" &&
+                            course.faculty === currentUser._id && (
+                              <>
+                                <Button
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    setCourse(course);
+                                  }}
+                                  variant="warning"
+                                  className="me-2 float-end"
+                                  id="wd-edit-course-click"
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    dispatch(deleteCourse(course._id));
+                                  }}
+                                  variant="danger"
+                                  className="float-end"
+                                  id="wd-delete-course-click"
+                                >
+                                  Delete
+                                </Button>
+                              </>
+                            )}
                         </>
                       )}
                     </CardBody>
