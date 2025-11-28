@@ -27,6 +27,9 @@ export default function Profile() {
       <h3>Profile</h3>
       {profile && (
         <div>
+          <div className="mb-2">
+            <strong>Role:</strong> {profile.role}
+          </div>
           <FormControl
             id="wd-username"
             className="mb-2"

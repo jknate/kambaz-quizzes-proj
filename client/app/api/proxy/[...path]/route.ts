@@ -1,29 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = 'https://kambaz-node-server-app-ttnj.onrender.com';
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
-  const path = resolvedParams.path.join('/');
+  const path = resolvedParams.path.join("/");
   const url = new URL(request.url);
   const searchParams = url.searchParams.toString();
-  const backendUrl = `${BACKEND_URL}/${path}${searchParams ? `?${searchParams}` : ''}`;
+  const backendUrl = `${BACKEND_URL}/${path}${
+    searchParams ? `?${searchParams}` : ""
+  }`;
 
   try {
     const response = await fetch(backendUrl);
     const data = await response.text();
-    
+
     return new NextResponse(data, {
       status: response.status,
       headers: {
-        'Content-Type': response.headers.get('Content-Type') || 'text/plain',
+        "Content-Type": response.headers.get("Content-Type") || "text/plain",
       },
     });
   } catch {
-    return NextResponse.json({ error: 'Failed to fetch from backend' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch from backend" },
+      { status: 500 }
+    );
   }
 }
 
@@ -32,29 +37,33 @@ export async function POST(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
-  const path = resolvedParams.path.join('/');
+  const path = resolvedParams.path.join("/");
   const body = await request.text();
   const backendUrl = `${BACKEND_URL}/${path}`;
 
   try {
     const response = await fetch(backendUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': request.headers.get('Content-Type') || 'application/json',
+        "Content-Type":
+          request.headers.get("Content-Type") || "application/json",
       },
       body,
     });
-    
+
     const data = await response.text();
-    
+
     return new NextResponse(data, {
       status: response.status,
       headers: {
-        'Content-Type': response.headers.get('Content-Type') || 'text/plain',
+        "Content-Type": response.headers.get("Content-Type") || "text/plain",
       },
     });
   } catch {
-    return NextResponse.json({ error: 'Failed to fetch from backend' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch from backend" },
+      { status: 500 }
+    );
   }
 }
 
@@ -63,29 +72,33 @@ export async function PUT(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
-  const path = resolvedParams.path.join('/');
+  const path = resolvedParams.path.join("/");
   const body = await request.text();
   const backendUrl = `${BACKEND_URL}/${path}`;
 
   try {
     const response = await fetch(backendUrl, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': request.headers.get('Content-Type') || 'application/json',
+        "Content-Type":
+          request.headers.get("Content-Type") || "application/json",
       },
       body,
     });
-    
+
     const data = await response.text();
-    
+
     return new NextResponse(data, {
       status: response.status,
       headers: {
-        'Content-Type': response.headers.get('Content-Type') || 'text/plain',
+        "Content-Type": response.headers.get("Content-Type") || "text/plain",
       },
     });
   } catch {
-    return NextResponse.json({ error: 'Failed to fetch from backend' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch from backend" },
+      { status: 500 }
+    );
   }
 }
 
@@ -94,23 +107,26 @@ export async function DELETE(
   { params }: { params: Promise<{ path: string[] }> }
 ) {
   const resolvedParams = await params;
-  const path = resolvedParams.path.join('/');
+  const path = resolvedParams.path.join("/");
   const backendUrl = `${BACKEND_URL}/${path}`;
 
   try {
     const response = await fetch(backendUrl, {
-      method: 'DELETE',
+      method: "DELETE",
     });
-    
+
     const data = await response.text();
-    
+
     return new NextResponse(data, {
       status: response.status,
       headers: {
-        'Content-Type': response.headers.get('Content-Type') || 'text/plain',
+        "Content-Type": response.headers.get("Content-Type") || "text/plain",
       },
     });
   } catch {
-    return NextResponse.json({ error: 'Failed to fetch from backend' }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch from backend" },
+      { status: 500 }
+    );
   }
 }
