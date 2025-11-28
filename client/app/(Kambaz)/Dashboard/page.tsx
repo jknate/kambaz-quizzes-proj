@@ -68,7 +68,7 @@ export default function Dashboard() {
           className="btn btn-primary float-end me-2"
           id="wd-add-new-course-click"
           onClick={() => {
-            if (currentUser && currentUser.role === "FACULTY") {
+            if (currentUser?.role === "FACULTY") {
               dispatch(addNewCourse({ ...course, faculty: currentUser._id }));
             }
           }}
@@ -111,12 +111,11 @@ export default function Dashboard() {
               if (!currentUser) return true;
 
               // Faculty: show only courses they created
-              if (currentUser.role === "FACULTY") {
+              if (currentUser?.role === "FACULTY") {
                 return course.faculty === currentUser._id;
               }
 
-              // Student: show only enrolled courses
-              if (currentUser.role === "STUDENT") {
+              if (currentUser?.role === "STUDENT") {
                 return enrollments.some(
                   (enrollment: any) =>
                     enrollment.user === currentUser._id &&
@@ -172,7 +171,7 @@ export default function Dashboard() {
                       )}
                       {!showAllCourses && (
                         <>
-                          {currentUser.role === "FACULTY" &&
+                          {currentUser?.role === "FACULTY" &&
                             course.faculty === currentUser._id && (
                               <>
                                 <Button
