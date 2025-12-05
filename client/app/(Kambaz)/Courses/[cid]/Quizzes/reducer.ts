@@ -1,40 +1,62 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { createSlice } from "@reduxjs/toolkit";
-import { quizzes } from "../../../Database";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const initialState = {
-  quizzes: quizzes,
+export interface Quiz {
+  _id: string;
+  course: string;
+  title: string;
+  description: string;
+  quizType: string;
+  assignmentGroup: string;
+  shuffleAnswers: boolean;
+  timeLimit: number;
+  multipleAttempts: boolean;
+  howManyAttempts: number;
+  showCorrectAnswers: string;
+  accessCode: string;
+  oneQuestionAtATime: boolean;
+  webcamRequired: boolean;
+  lockQuestionsAfterAnswering: boolean;
+  dueDate: string;
+  availableDate: string;
+  untilDate: string;
+  published: boolean;
+  questions: any[];
+}
+
+interface QuizState {
+  quizzes: Quiz[];
+}
+
+const initialState: QuizState = {
+  quizzes: [],
 };
 
 const quizzesSlice = createSlice({
   name: "quizzes",
   initialState,
   reducers: {
-    addQuiz: (state, { payload: quiz }) => {
-      const newQuiz: any = {
-        _id: new Date().getTime().toString(),
-        title: quiz.title,
-        course: quiz.course,
-        description: quiz.description,
-        points: quiz.points,
-        dueDate: quiz.dueDate,
-        availableFromDate: quiz.availableFromDate,
-        availableUntilDate: quiz.availableUntilDate,
-      };
-      state.quizzes = [...state.quizzes, newQuiz] as any;
+    addQuiz: (state, action: PayloadAction<Quiz>) => {
+      state.quizzes.push(action.payload);
     },
-    deleteQuiz: (state, { payload: quizId }) => {
+
+    deleteQuiz: (state, action: PayloadAction<string>) => {
       state.quizzes = state.quizzes.filter(
-        (a: any) => a._id !== quizId
+        (q) => q._id !== action.payload
       );
     },
-    updateQuiz: (state, { payload: quiz }) => {
-      state.quizzes = state.quizzes.map((a: any) =>
-        a._id === quiz._id ? quiz : a
-      ) as any;
+
+    togglePublishQuiz: (state, action: PayloadAction<string>) => {
+      state.quizzes = state.quizzes.map((q) =>
+        q._id === action.payload
+          ? { ...q, published: !q.published }
+          : q
+      );
     },
-    setQuizzes: (state, { payload: quizzes }) => {
-      state.quizzes = quizzes;
+
+    updateQuiz: (state, action: PayloadAction<Quiz>) => {
+      state.quizzes = state.quizzes.map((q) =>
+        q._id === action.payload._id ? action.payload : q
+      );
     },
   },
 });
@@ -42,7 +64,8 @@ const quizzesSlice = createSlice({
 export const {
   addQuiz,
   deleteQuiz,
+  togglePublishQuiz,
   updateQuiz,
-  setQuizzes,
 } = quizzesSlice.actions;
+
 export default quizzesSlice.reducer;
