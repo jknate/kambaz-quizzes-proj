@@ -10,6 +10,7 @@ const store = configureStore({
   reducer: {
     coursesReducer,
     modulesReducer,
+    quizzesReducer,
     accountReducer,
     assignmentsReducer,
     enrollmentsReducer,

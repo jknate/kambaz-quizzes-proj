@@ -46,8 +46,13 @@ kambaz-quizzes-proj/
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:4000
 
+## Deployment
+
+For production deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Development
 
 - The frontend is built with Next.js, React, TypeScript, and Bootstrap
 - The backend is a Node.js Express server
 - Both applications support hot reloading during development
+- Environment variables are used to configure API endpoints

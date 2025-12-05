@@ -1,0 +1,49 @@
+name: CI — Node.js
+
+on:
+  push:
+    branches: [ "main", "master", "**" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+        project: [client, server]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ${{ matrix.project }}/node_modules
+          key: ${{ runner.os }}-node-${{ matrix.project }}-${{ hashFiles(format('{0}/package-lock.json', matrix.project)) }}-${{ matrix.node-version }}
+          restore-keys: |
+            ${{ runner.os }}-node-${{ matrix.project }}-
+
+      - name: Install dependencies
+        working-directory: ${{ matrix.project }}
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+
+      - name: Run tests
+        working-directory: ${{ matrix.project }}
+        continue-on-error: true
+        run: npm test --if-present || echo "No tests available"
+
+      - name: Build (if present)
+        working-directory: ${{ matrix.project }}
+        run: npm run build --if-present

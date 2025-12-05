@@ -9,12 +9,18 @@ export default function Labs() {
         https://github.com/jknate/kambaz-next-js
       </Link>
       <br />
-      <Link href="https://github.com/jknate/kambaz-node-server-app" id="wd-backend-server">
-        https://github.com/jknate/kambaz-node-server-app
+      <Link
+        href="https://github.com/jknate/kambaz-quizzes-proj"
+        id="wd-backend-server"
+      >
+        https://github.com/jknate/kambaz-quizzes-proj
       </Link>
       <br />
-      <Link href="https://kambaz-node-server-app-ttnj.onrender.com/" id="wd-live-server">
-        https://kambaz-node-server-app-ttnj.onrender.com/
+      <Link
+        href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}
+        id="wd-live-server"
+      >
+        {process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}
       </Link>
       <ul>
         <li>
