@@ -1,0 +1,42 @@
+[
+  {
+    "_id": "Q101",
+    "title": "Capital Cities",
+    "course": "RS101",
+    "type": "fill-in-the-blank",
+    "points": 10,
+    "question": "The capital of France is _______.",
+    "possibleAnswers": ["Paris", "paris", "PARIS"],
+    "caseSensitive": false
+  },
+  {
+    "_id": "Q102",
+    "title": "Programming Concepts",
+    "course": "RS101",
+    "type": "fill-in-the-blank",
+    "points": 15,
+    "question": "In JavaScript, the keyword _______ is used to declare a variable that cannot be reassigned.",
+    "possibleAnswers": ["const"],
+    "caseSensitive": true
+  },
+  {
+    "_id": "Q103",
+    "title": "Math Basics",
+    "course": "CS101",
+    "type": "fill-in-the-blank",
+    "points": 8,
+    "question": "The result of 2 + 2 is _______.",
+    "possibleAnswers": ["4", "four", "Four"],
+    "caseSensitive": false
+  },
+  {
+    "_id": "Q104",
+    "title": "History Question",
+    "course": "CS101",
+    "type": "fill-in-the-blank",
+    "points": 12,
+    "question": "The first president of the United States was _______ _______.",
+    "possibleAnswers": ["George Washington", "george washington", "GEORGE WASHINGTON"],
+    "caseSensitive": false
+  }
+]

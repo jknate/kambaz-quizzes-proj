@@ -103,7 +103,7 @@ export default function Dashboard() {
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
           {courses
-            .filter((course: any) => {
+            .filter((c: any) => {
               // If showing all courses, show everything
               if (showAllCourses) return true;
 
@@ -112,14 +112,14 @@ export default function Dashboard() {
 
               // Faculty: show only courses they created
               if (currentUser?.role === "FACULTY") {
-                return course.faculty === currentUser._id;
+                return c.faculty === currentUser._id;
               }
 
               if (currentUser?.role === "STUDENT") {
                 return enrollments.some(
                   (enrollment: any) =>
                     enrollment.user === currentUser._id &&
-                    enrollment.course === course._id
+                    enrollment.course === c._id
                 );
               }
 

@@ -13,23 +13,23 @@ export default function QuizzesControls() {
           variant="danger"
           size="lg"
           className="me-1 float-end"
-          id="wd-add-quiz"
+          id="wd-add-question"
         >
           <FaPlus
             className="position-relative me-2"
             style={{ bottom: "1px" }}
           />
-          Quiz
+          Question
         </Button>
       </Link>
       <InputGroup className="w-25">
-        <InputGroup.Text id="wd-search-quiz">
+        <InputGroup.Text id="wd-search-question">
           <FaSearch />
         </InputGroup.Text>
         <FormControl
-          placeholder="Search for Quizzes"
-          aria-label="Search for Quizzes"
-          aria-describedby="wd-search-quiz"
+          placeholder="Search for Questions"
+          aria-label="Search for Questions"
+          aria-describedby="wd-search-question"
         />
       </InputGroup>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
@@ -11,10 +10,14 @@ export default function Quizzes() {
   const router = useRouter();
   const { cid } = useParams();
 
-  const currentUser = useSelector((state: any) => state.accountReducer.currentUser);
+  const currentUser = useSelector(
+    (state: any) => state.accountReducer.currentUser
+  );
   const isFaculty = currentUser?.role === "FACULTY";
 
-  const allQuizzes = useSelector((state: any) => state.quizzesReducer.quizzes || []);
+  const allQuizzes = useSelector(
+    (state: any) => state.quizzesReducer.quizzes || []
+  );
   const quizzes = allQuizzes.filter((quiz: any) => quiz.course === cid);
 
   const handleAddQuiz = () => {
@@ -48,7 +51,6 @@ export default function Quizzes() {
 
   return (
     <div className="container mt-4">
-
       {/* Top Bar */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="fw-semibold">Quizzes</h1>
@@ -62,15 +64,14 @@ export default function Quizzes() {
 
       {/* Quiz List Card */}
       <div className="card">
-        <div className="card-header fw-semibold">
-          Assignment Quizzes
-        </div>
+        <div className="card-header fw-semibold">Assignment Quizzes</div>
 
         <ul className="list-group list-group-flush">
-
           {quizzes.length === 0 ? (
             <li className="list-group-item fst-italic text-muted">
-              {isFaculty ? 'No quizzes yet. Click "+ Quiz".' : "No quizzes available yet."}
+              {isFaculty
+                ? 'No quizzes yet. Click "+ Quiz".'
+                : "No quizzes available yet."}
             </li>
           ) : (
             quizzes.map((quiz: any) => (
@@ -84,7 +85,6 @@ export default function Quizzes() {
               >
                 {/* LEFT SIDE */}
                 <div className="d-flex gap-3">
-
                   {/* Published icon */}
                   <div>
                     {quiz.published ? (
@@ -98,9 +98,8 @@ export default function Quizzes() {
                     <div className="fw-semibold">{quiz.title}</div>
 
                     <div className="text-muted small">
-                      {quiz.published ? "Available" : "Unpublished"} •{" "}
-                      Due {quiz.dueDate || "No due date"} •{" "}
-                      {quiz.points ?? 0} pts •{" "}
+                      {quiz.published ? "Available" : "Unpublished"} • Due{" "}
+                      {quiz.dueDate || "No due date"} • {quiz.points ?? 0} pts •{" "}
                       {quiz.questions?.length ?? 0} Questions
                     </div>
                   </div>
@@ -109,7 +108,6 @@ export default function Quizzes() {
                 {/* RIGHT SIDE — FACULTY CONTROLS */}
                 {isFaculty && (
                   <div className="d-flex align-items-center gap-3">
-
                     <button
                       className="btn btn-outline-secondary btn-sm"
                       onClick={(e) => {
@@ -144,7 +142,6 @@ export default function Quizzes() {
               </li>
             ))
           )}
-
         </ul>
       </div>
     </div>
