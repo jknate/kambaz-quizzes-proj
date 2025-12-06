@@ -82,6 +82,41 @@ export default function QuizEditorPage() {
     router.push(`/Courses/${cid}/Quizzes`);
   };
 
+  const handleEditQuestion = (question: any, idx: number) => {
+  setEditingQuestionIdx(idx);
+  setQuestionType(question.type);
+  setShowQuestionEditor(true);
+};
+
+  const handleDeleteQuestion = (question: any) => {
+    const updatedQuestions = (quiz.questions || []).filter(
+      (q: any) => q !== question
+    );
+    setQuiz({ ...quiz, questions: updatedQuestions });
+  };
+
+  const handleAddQuestion = (question: any) => {
+    let updatedQuestions = [...(quiz.questions || [])];     
+    if (editingQuestionIdx !== null) {
+      // Update existing question
+      updatedQuestions[editingQuestionIdx] = question;
+    }
+    else {
+      // Add new question
+      updatedQuestions.push(question);
+    }
+    setQuiz({ ...quiz, questions: updatedQuestions });
+    setShowQuestionEditor(false);
+    setEditingQuestionIdx(null);
+    setQuestionType(null);
+  };
+
+  const handleCancelEditor = () => {
+    setShowQuestionEditor(false);
+    setEditingQuestionIdx(null);
+    setQuestionType(null);
+  }
+
   return (
     <div className="container mt-4" style={{ maxWidth: "950px" }}>
       <h2 className="fw-semibold mb-3">Quiz Editor</h2>

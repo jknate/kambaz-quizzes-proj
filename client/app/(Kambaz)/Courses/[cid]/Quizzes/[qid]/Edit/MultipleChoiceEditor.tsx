@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import dynamic from "next/dynamic";
 import { useDispatch } from "react-redux";
-import { updateQuestion } from "@/app/(Kambaz)/Courses/[cid]/Quizzes/questionsReducer";
+import { updateQuestion } from "../../questionsReducer";
 
 // Dynamically load the WYSIWYG
 export default function MultipleChoiceEditor({ question, onCancel }: any) {
