@@ -13,6 +13,10 @@ import {
   Tab,
 } from "react-bootstrap";
 import { updateQuiz } from "../../reducer";
+import FillInTheBlankEditor from "./FillInTheBlankEditor";
+import QuestionsList from "./QuestionsList";
+import MultipleChoiceEditor from "./MultipleChoiceEditor";
+
 
 export default function QuizEditorPage() {
   const { cid, qid } = useParams();
@@ -24,6 +28,13 @@ export default function QuizEditorPage() {
   );
 
   const [tab, setTab] = useState("details");
+  const [showQuestionEditor, setShowQuestionEditor] = useState(false);
+  const [editingQuestionIdx, setEditingQuestionIdx] = useState<number | null>(
+    null
+  );
+  const [questionType, setQuestionType] = useState<"fill-in-the-blank" | "multiple-choice" | null>(
+    null
+  );
 
   const [quiz, setQuiz] = useState<any>({
     title: "",
@@ -389,12 +400,89 @@ export default function QuizEditorPage() {
         {/* ------------------- QUESTIONS TAB ------------------- */}
         <Tab eventKey="questions" title="Questions">
           <Card className="p-4">
-            <h5 className="fw-semibold mb-3">Questions Editor</h5>
-            <p className="text-muted">
-              You can now add your question editor UI here.
-            </p>
+            {!showQuestionEditor ? (
+              <>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="fw-semibold mb-0">Questions Editor</h5>
 
-            <Button variant="primary">+ Add Question</Button>
+                  <div className="d-flex gap-2">
+                    {/* Question Type Dropdown */}
+                    <Form.Select
+                      value={questionType || ""}
+                      onChange={(e) =>
+                        setQuestionType(
+                          e.target.value as "multiple-choice" | "fill-in-the-blank"
+                        )
+                      }
+                      style={{ width: "200px" }}
+                    >
+                      <option value="">Select Question Type</option>
+                      <option value="multiple-choice">Multiple Choice</option>
+                      <option value="fill-in-the-blank">Fill in the Blank</option>
+                    </Form.Select>
+
+                    {/* Add Question Button */}
+                    <Button
+                      variant="primary"
+                      disabled={!questionType}
+                      onClick={() => {
+                        setEditingQuestionIdx(null);
+                        setShowQuestionEditor(true);
+                      }}
+                    >
+                      + Add Question
+                    </Button>
+                  </div>
+                </div>
+
+
+                {/* Questions List */}
+                <div className="mb-3">
+                  <QuestionsList
+                    questions={quiz.questions || []}
+                    onEdit={(question) => {
+                      const idx = quiz.questions.indexOf(question);
+                      handleEditQuestion(question, idx);
+                    }}
+                    onDelete={handleDeleteQuestion}
+                  />
+                </div>
+
+                {/* Total Points */}
+                {quiz.questions && quiz.questions.length > 0 && (
+                  <div className="alert alert-info mt-3 mb-0">
+                    <strong>Total Points: {points}</strong>
+                  </div>
+                )}
+              </>
+            ) : questionType === "fill-in-the-blank" ? (
+              <FillInTheBlankEditor
+                onSave={handleAddQuestion}
+                onCancel={handleCancelEditor}
+                initialQuestion={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : undefined
+                }
+              />
+            ) : questionType === "multiple-choice" ? (
+              <MultipleChoiceEditor
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                      title: "",
+                      points: 1,
+                      type: "multiple-choice",
+                      question: "",
+                      possibleAnswers: [""],
+                      correctAnswerIndex: 0,
+                    }
+                }
+                onCancel={handleCancelEditor}
+                onSave={handleAddQuestion}
+              />
+            ) : null}
           </Card>
         </Tab>
       </Tabs>
