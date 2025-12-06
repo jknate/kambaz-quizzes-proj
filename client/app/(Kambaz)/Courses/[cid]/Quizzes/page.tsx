@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { addQuiz, deleteQuiz, togglePublishQuiz } from "./reducer";
+import { addQuiz, deleteQuiz, togglePublishQuiz, setQuizzes } from "./reducer";
 
 export default function Quizzes() {
   const dispatch = useDispatch();
@@ -19,6 +20,23 @@ export default function Quizzes() {
     (state: any) => state.quizzesReducer.quizzes || []
   );
   const quizzes = allQuizzes.filter((quiz: any) => quiz.course === cid);
+
+  // Fetch quizzes from MongoDB on component mount
+  useEffect(() => {
+    const fetchQuizzes = async () => {
+      try {
+        const response = await fetch("/api/proxy/quizzes");
+        if (response.ok) {
+          const data = await response.json();
+          dispatch(setQuizzes(data));
+        }
+      } catch (error) {
+        console.error("Failed to fetch quizzes:", error);
+      }
+    };
+
+    fetchQuizzes();
+  }, [dispatch]);
 
   const handleAddQuiz = () => {
     const newQuiz = {

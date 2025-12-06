@@ -20,6 +20,7 @@ export interface Quiz {
   availableDate: string;
   untilDate: string;
   published: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   questions: any[];
 }
 
@@ -40,16 +41,12 @@ const quizzesSlice = createSlice({
     },
 
     deleteQuiz: (state, action: PayloadAction<string>) => {
-      state.quizzes = state.quizzes.filter(
-        (q) => q._id !== action.payload
-      );
+      state.quizzes = state.quizzes.filter((q) => q._id !== action.payload);
     },
 
     togglePublishQuiz: (state, action: PayloadAction<string>) => {
       state.quizzes = state.quizzes.map((q) =>
-        q._id === action.payload
-          ? { ...q, published: !q.published }
-          : q
+        q._id === action.payload ? { ...q, published: !q.published } : q
       );
     },
 
@@ -57,6 +54,10 @@ const quizzesSlice = createSlice({
       state.quizzes = state.quizzes.map((q) =>
         q._id === action.payload._id ? action.payload : q
       );
+    },
+
+    setQuizzes: (state, action: PayloadAction<Quiz[]>) => {
+      state.quizzes = action.payload;
     },
   },
 });
@@ -66,6 +67,7 @@ export const {
   deleteQuiz,
   togglePublishQuiz,
   updateQuiz,
+  setQuizzes,
 } = quizzesSlice.actions;
 
 export default quizzesSlice.reducer;

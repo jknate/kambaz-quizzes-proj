@@ -4,15 +4,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Card,
-  Button,
-  Table,
-  Form,
-  Tabs,
-  Tab,
-} from "react-bootstrap";
+import { Card, Button, Table, Form, Tabs, Tab } from "react-bootstrap";
 import { updateQuiz } from "../../reducer";
+import FillInTheBlankEditor from "./FillInTheBlankEditor";
+import QuestionsList from "./QuestionsList";
 
 export default function QuizEditorPage() {
   const { cid, qid } = useParams();
@@ -24,6 +19,13 @@ export default function QuizEditorPage() {
   );
 
   const [tab, setTab] = useState("details");
+  const [showQuestionEditor, setShowQuestionEditor] = useState(false);
+  const [editingQuestionIdx, setEditingQuestionIdx] = useState<number | null>(
+    null
+  );
+  const [questionType, setQuestionType] = useState<"fill-in-the-blank" | null>(
+    null
+  );
 
   const [quiz, setQuiz] = useState<any>({
     title: "",
@@ -71,6 +73,49 @@ export default function QuizEditorPage() {
     router.push(`/Courses/${cid}/Quizzes`);
   };
 
+  const handleAddQuestion = (newQuestion: any) => {
+    if (editingQuestionIdx !== null) {
+      // Update existing question
+      const updated = [...quiz.questions];
+      updated[editingQuestionIdx] = {
+        ...newQuestion,
+        _id: updated[editingQuestionIdx]._id,
+      };
+      setQuiz({ ...quiz, questions: updated });
+    } else {
+      // Add new question
+      setQuiz({
+        ...quiz,
+        questions: [
+          ...quiz.questions,
+          { ...newQuestion, _id: `q_${Date.now()}` },
+        ],
+      });
+    }
+    setShowQuestionEditor(false);
+    setEditingQuestionIdx(null);
+    setQuestionType(null);
+  };
+
+  const handleEditQuestion = (question: any, idx: number) => {
+    setEditingQuestionIdx(idx);
+    setQuestionType(question.type);
+    setShowQuestionEditor(true);
+  };
+
+  const handleDeleteQuestion = (questionId: string | undefined) => {
+    setQuiz({
+      ...quiz,
+      questions: quiz.questions.filter((q: any) => q._id !== questionId),
+    });
+  };
+
+  const handleCancelEditor = () => {
+    setShowQuestionEditor(false);
+    setEditingQuestionIdx(null);
+    setQuestionType(null);
+  };
+
   return (
     <div className="container mt-4" style={{ maxWidth: "950px" }}>
       <h2 className="fw-semibold mb-3">Quiz Editor</h2>
@@ -83,16 +128,13 @@ export default function QuizEditorPage() {
         {/* ------------------- DETAILS TAB ------------------- */}
         <Tab eventKey="details" title="Details">
           <Card className="p-4">
-
             {/* Title */}
             <Form.Group className="mb-3">
               <Form.Label>Quiz Title</Form.Label>
               <Form.Control
                 type="text"
                 value={quiz.title}
-                onChange={(e) =>
-                  setQuiz({ ...quiz, title: e.target.value })
-                }
+                onChange={(e) => setQuiz({ ...quiz, title: e.target.value })}
               />
             </Form.Group>
 
@@ -110,7 +152,11 @@ export default function QuizEditorPage() {
             </Form.Group>
 
             {/* EXACT QUIZ DETAILS LAYOUT (VERTICAL) */}
-            <Table borderless className="align-middle" style={{ width: "100%" }}>
+            <Table
+              borderless
+              className="align-middle"
+              style={{ width: "100%" }}
+            >
               <tbody>
                 <EditorRow
                   label="Quiz Type"
@@ -131,9 +177,7 @@ export default function QuizEditorPage() {
 
                 <EditorRow
                   label="Points"
-                  input={
-                    <Form.Control type="number" value={points} disabled />
-                  }
+                  input={<Form.Control type="number" value={points} disabled />}
                 />
 
                 <EditorRow
@@ -302,14 +346,11 @@ export default function QuizEditorPage() {
                   label="Lock Questions After Answering"
                   input={
                     <Form.Select
-                      value={
-                        quiz.lockQuestionsAfterAnswering ? "Yes" : "No"
-                      }
+                      value={quiz.lockQuestionsAfterAnswering ? "Yes" : "No"}
                       onChange={(e) =>
                         setQuiz({
                           ...quiz,
-                          lockQuestionsAfterAnswering:
-                            e.target.value === "Yes",
+                          lockQuestionsAfterAnswering: e.target.value === "Yes",
                         })
                       }
                     >
@@ -389,12 +430,52 @@ export default function QuizEditorPage() {
         {/* ------------------- QUESTIONS TAB ------------------- */}
         <Tab eventKey="questions" title="Questions">
           <Card className="p-4">
-            <h5 className="fw-semibold mb-3">Questions Editor</h5>
-            <p className="text-muted">
-              You can now add your question editor UI here.
-            </p>
+            {!showQuestionEditor ? (
+              <>
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h5 className="fw-semibold mb-0">Questions Editor</h5>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setQuestionType("fill-in-the-blank");
+                      setEditingQuestionIdx(null);
+                      setShowQuestionEditor(true);
+                    }}
+                  >
+                    + Add Question
+                  </Button>
+                </div>
 
-            <Button variant="primary">+ Add Question</Button>
+                {/* Questions List */}
+                <div className="mb-3">
+                  <QuestionsList
+                    questions={quiz.questions || []}
+                    onEdit={(question) => {
+                      const idx = quiz.questions.indexOf(question);
+                      handleEditQuestion(question, idx);
+                    }}
+                    onDelete={handleDeleteQuestion}
+                  />
+                </div>
+
+                {/* Total Points */}
+                {quiz.questions && quiz.questions.length > 0 && (
+                  <div className="alert alert-info mt-3 mb-0">
+                    <strong>Total Points: {points}</strong>
+                  </div>
+                )}
+              </>
+            ) : questionType === "fill-in-the-blank" ? (
+              <FillInTheBlankEditor
+                onSave={handleAddQuestion}
+                onCancel={handleCancelEditor}
+                initialQuestion={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : undefined
+                }
+              />
+            ) : null}
           </Card>
         </Tab>
       </Tabs>

@@ -1,59 +1,88 @@
 import UsersDao from "./dao.js";
 
-export default function UserRoutes(app, db) {
-  const dao = UsersDao(db);
+export default function UserRoutes(app) {
+  const dao = UsersDao();
 
-  const createUser = (req, res) => {
-    const user = dao.createUser(req.body);
-    res.json(user);
+  const createUser = async (req, res) => {
+    try {
+      const user = await dao.createUser(req.body);
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   };
 
-  const deleteUser = (req, res) => {
-    const { userId } = req.params;
-    dao.deleteUser(userId);
-    res.sendStatus(200);
+  const deleteUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      await dao.deleteUser(userId);
+      res.sendStatus(200);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   };
 
-  const findAllUsers = (req, res) => {
-    res.json(dao.findAllUsers());
+  const findAllUsers = async (req, res) => {
+    try {
+      const users = await dao.findAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   };
 
-  const findUserById = (req, res) => {
-    const { userId } = req.params;
-    res.json(dao.findUserById(userId));
+  const findUserById = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const user = await dao.findUserById(userId);
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   };
 
-  const updateUser = (req, res) => {
-    const userId = req.params.userId;
-    const userUpdates = req.body;
-    dao.updateUser(userId, userUpdates);
-    const currentUser = dao.findUserById(userId);
-    // keep session in sync if user updated is current
-    req.session["currentUser"] = currentUser;
-    res.json(currentUser);
+  const updateUser = async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const userUpdates = req.body;
+      const currentUser = await dao.updateUser(userId, userUpdates);
+      // keep session in sync if user updated is current
+      req.session["currentUser"] = currentUser;
+      res.json(currentUser);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   };
 
   let currentUser = null;
 
-  const signup = (req, res) => {
-    const user = dao.findUserByUsername(req.body.username);
-    if (user) {
-      res.status(400).json({ message: "Username already in use" });
-      return;
+  const signup = async (req, res) => {
+    try {
+      const user = await dao.findUserByUsername(req.body.username);
+      if (user) {
+        res.status(400).json({ message: "Username already in use" });
+        return;
+      }
+      const newUser = await dao.createUser(req.body);
+      req.session["currentUser"] = newUser;
+      res.json(newUser);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
-    const newUser = dao.createUser(req.body);
-    req.session["currentUser"] = newUser;
-    res.json(newUser);
   };
 
-  const signin = (req, res) => {
-    const { username, password } = req.body;
-    const user = dao.findUserByCredentials(username, password);
-    if (user) {
-      req.session["currentUser"] = user;
-      res.json(user);
-    } else {
-      res.status(401).json({ message: "Unable to login. Try again later." });
+  const signin = async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      const user = await dao.findUserByCredentials(username, password);
+      if (user) {
+        req.session["currentUser"] = user;
+        res.json(user);
+      } else {
+        res.status(401).json({ message: "Unable to login. Try again later." });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
     }
   };
 
