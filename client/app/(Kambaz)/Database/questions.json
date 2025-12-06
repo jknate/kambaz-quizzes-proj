@@ -36,7 +36,11 @@
     "type": "fill-in-the-blank",
     "points": 12,
     "question": "The first president of the United States was _______ _______.",
-    "possibleAnswers": ["George Washington", "george washington", "GEORGE WASHINGTON"],
+    "possibleAnswers": [
+      "George Washington",
+      "george washington",
+      "GEORGE WASHINGTON"
+    ],
     "caseSensitive": false
   }
 ]

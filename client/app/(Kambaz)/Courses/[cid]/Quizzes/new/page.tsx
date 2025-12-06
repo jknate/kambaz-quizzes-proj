@@ -26,7 +26,7 @@ export default function QuestionEditor() {
     const filteredAnswers = question.possibleAnswers.filter(
       (answer: string) => answer.trim() !== ""
     );
-    
+
     if (filteredAnswers.length === 0) {
       alert("Please add at least one correct answer");
       return;
@@ -41,7 +41,7 @@ export default function QuestionEditor() {
       alert("Please enter the question text");
       return;
     }
-    
+
     const questionToSave = {
       ...question,
       possibleAnswers: filteredAnswers,
@@ -128,7 +128,8 @@ export default function QuestionEditor() {
             <strong>Question Text</strong>
           </Form.Label>
           <p className="text-muted small">
-            Use <code>_______</code> (7 underscores) to indicate where the blank should appear.
+            Use <code>_______</code> (7 underscores) to indicate where the blank
+            should appear.
           </p>
           <Form.Control
             as="textarea"
@@ -167,9 +168,10 @@ export default function QuestionEditor() {
             <strong>Possible Correct Answers</strong>
           </Form.Label>
           <p className="text-muted small">
-            Add all possible correct answers. Students need to match at least one of these answers.
+            Add all possible correct answers. Students need to match at least
+            one of these answers.
           </p>
-          
+
           {question.possibleAnswers.map((answer: string, index: number) => (
             <Row key={index} className="mb-2 align-items-center">
               <Col xs={10}>
@@ -194,7 +196,7 @@ export default function QuestionEditor() {
               </Col>
             </Row>
           ))}
-          
+
           <Button
             variant="outline-primary"
             onClick={addAnswer}
@@ -223,18 +225,19 @@ export default function QuestionEditor() {
 
         {/* Action Buttons */}
         <div className="d-flex justify-content-end gap-2">
-          <Button 
-            variant="secondary" 
-            size="lg" 
-            onClick={handleCancel}
-          >
+          <Button variant="secondary" size="lg" onClick={handleCancel}>
             Cancel
           </Button>
-          <Button 
-            variant="danger" 
-            size="lg" 
+          <Button
+            variant="danger"
+            size="lg"
             onClick={handleSave}
-            disabled={!question.title || !question.question || question.possibleAnswers.filter((a: string) => a.trim()).length === 0}
+            disabled={
+              !question.title ||
+              !question.question ||
+              question.possibleAnswers.filter((a: string) => a.trim())
+                .length === 0
+            }
           >
             Save Question
           </Button>
