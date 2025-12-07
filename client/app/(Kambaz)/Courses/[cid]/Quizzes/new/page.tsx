@@ -22,7 +22,7 @@ export default function QuestionEditor() {
   });
 
   const handleSave = () => {
-    // Filter out empty answers
+    // Filter out all empty answers
     const filteredAnswers = question.possibleAnswers.filter(
       (answer: string) => answer.trim() !== ""
     );
