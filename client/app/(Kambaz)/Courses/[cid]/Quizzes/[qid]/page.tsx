@@ -21,10 +21,8 @@ export default function QuizDetailsScreen() {
 
   return (
     <div className="container mt-4" style={{ maxWidth: "900px" }}>
-
       {/* ============ TOP BUTTONS ============ */}
       <div className="d-flex justify-content-center gap-3 mb-3">
-
         {/* Faculty buttons */}
         {isFaculty && (
           <>
@@ -40,9 +38,7 @@ export default function QuizDetailsScreen() {
             <Button
               variant="secondary"
               className="d-flex align-items-center gap-2"
-              onClick={() =>
-                router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)
-              }
+              onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)}
             >
               <FaPencilAlt size={14} />
               Edit
@@ -50,9 +46,14 @@ export default function QuizDetailsScreen() {
           </>
         )}
 
-        {/* Student "Start Quiz" button (Option C: does nothing yet) */}
+        {/* Student "Start Quiz" button */}
         {!isFaculty && (
-          <Button variant="primary" onClick={() => {}}>
+          <Button
+            variant="primary"
+            onClick={() =>
+              router.push(`/Courses/${cid}/Quizzes/${qid}/Preview`)
+            }
+          >
             Start Quiz
           </Button>
         )}
@@ -72,7 +73,10 @@ export default function QuizDetailsScreen() {
               label="Shuffle Answers"
               value={quiz.shuffleAnswers ? "Yes" : "No"}
             />
-            <DetailsRow label="Time Limit" value={`${quiz.timeLimit} Minutes`} />
+            <DetailsRow
+              label="Time Limit"
+              value={`${quiz.timeLimit} Minutes`}
+            />
             <DetailsRow
               label="Multiple Attempts"
               value={quiz.multipleAttempts ? "Yes" : "No"}
