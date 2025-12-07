@@ -8,7 +8,7 @@ export default function TrueFalseQuestionEditor({ question, updateQuestion, onSa
     <div className="border p-3 mt-3 rounded">
       <h5>True / False Question</h5>
 
-      {/* Question Text */}
+      
       <Form.Group className="mb-3">
         <Form.Label>Question</Form.Label>
         <Form.Control
@@ -20,7 +20,7 @@ export default function TrueFalseQuestionEditor({ question, updateQuestion, onSa
         />
       </Form.Group>
 
-      {/* Correct answer */}
+      
       <Form.Group className="mb-3">
         <Form.Label>Correct Answer</Form.Label>
         <Form.Select
@@ -34,7 +34,7 @@ export default function TrueFalseQuestionEditor({ question, updateQuestion, onSa
         </Form.Select>
       </Form.Group>
 
-      {/* Points */}
+      
       <Form.Group className="mb-3" style={{ maxWidth: 160 }}>
         <Form.Label>Points</Form.Label>
         <Form.Control
