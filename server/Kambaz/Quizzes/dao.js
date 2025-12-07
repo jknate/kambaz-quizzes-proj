@@ -1,34 +1,30 @@
 import { v4 as uuidv4 } from "uuid";
+import { Quiz } from "../../models/Quiz.js";
 
-export default function QuizzesDao(db) {
+export default function QuizzesDao() {
   function findAllQuizzes() {
-    return db.quizzes;
+    return Quiz.find();
   }
 
   function findQuizById(id) {
-    return db.quizzes.find((a) => a._id === id);
+    return Quiz.findById(id);
   }
 
   function findQuizzesForCourse(courseId) {
-    return db.quizzes.filter((a) => a.course === courseId);
+    return Quiz.find({ course: courseId });
   }
 
   function createQuiz(quiz) {
-    const newQuiz = { ...quiz, _id: uuidv4() };
-    db.quizzes = [...db.quizzes, newQuiz];
-    return newQuiz;
+    const newQuiz = new Quiz({ ...quiz, _id: uuidv4() });
+    return newQuiz.save();
   }
 
   function updateQuiz(quizId, quizUpdates) {
-    const { quizzes } = db;
-    const quiz = quizzes.find((a) => a._id === quizId);
-    Object.assign(quiz, quizUpdates);
-    return quiz;
+    return Quiz.findByIdAndUpdate(quizId, quizUpdates, { new: true });
   }
 
   function deleteQuiz(quizId) {
-    db.quizzes = db.quizzes.filter((a) => a._id !== quizId);
-    return true;
+    return Quiz.findByIdAndDelete(quizId).then(() => true);
   }
 
   return {

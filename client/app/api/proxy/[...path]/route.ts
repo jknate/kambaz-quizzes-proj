@@ -21,12 +21,14 @@ export async function GET(
     return new NextResponse(data, {
       status: response.status,
       headers: {
-        "Content-Type": response.headers.get("Content-Type") || "text/plain",
+        "Content-Type":
+          response.headers.get("Content-Type") || "application/json",
       },
     });
-  } catch {
+  } catch (error) {
+    console.error(`Proxy GET error for ${backendUrl}:`, error);
     return NextResponse.json(
-      { error: "Failed to fetch from backend" },
+      { error: "Failed to fetch from backend", details: String(error) },
       { status: 500 }
     );
   }

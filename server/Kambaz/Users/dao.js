@@ -1,31 +1,37 @@
 import { v4 as uuidv4 } from "uuid";
+import { User } from "../../models/User.js";
 
-export default function UsersDao(db) {
-  let { users } = db;
-
-  const createUser = (user) => {
-    const newUser = { ...user, _id: uuidv4() };
-    users = [...users, newUser];
+export default function UsersDao() {
+  const createUser = async (user) => {
+    const newUser = new User({ ...user, _id: uuidv4() });
+    await newUser.save();
     return newUser;
   };
 
-  const findAllUsers = () => users;
+  const findAllUsers = async () => {
+    return await User.find();
+  };
 
-  const findUserById = (userId) => users.find((user) => user._id === userId);
+  const findUserById = async (userId) => {
+    return await User.findById(userId);
+  };
 
-  const findUserByUsername = (username) =>
-    users.find((user) => user.username === username);
+  const findUserByUsername = async (username) => {
+    return await User.findOne({ username });
+  };
 
-  const findUserByCredentials = (username, password) =>
-    users.find(
-      (user) => user.username === username && user.password === password
-    );
+  const findUserByCredentials = async (username, password) => {
+    return await User.findOne({ username, password });
+  };
 
-  const updateUser = (userId, user) =>
-    (users = users.map((u) => (u._id === userId ? user : u)));
+  const updateUser = async (userId, user) => {
+    return await User.findByIdAndUpdate(userId, user, { new: true });
+  };
 
-  const deleteUser = (userId) =>
-    (users = users.filter((u) => u._id !== userId));
+  const deleteUser = async (userId) => {
+    await User.findByIdAndDelete(userId);
+    return true;
+  };
 
   return {
     createUser,

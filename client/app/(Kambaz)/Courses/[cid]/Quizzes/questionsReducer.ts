@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createSlice } from "@reduxjs/toolkit";
-//import { questions } from "../../../Database/questions";
+import { questions } from "../../../Database";
 
-
-const initialState = { questions: [] };
-
+const initialState = {
+  questions: questions,
+};
 
 const questionsSlice = createSlice({
   name: "questions",

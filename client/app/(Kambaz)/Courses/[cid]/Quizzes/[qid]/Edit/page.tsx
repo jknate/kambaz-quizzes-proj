@@ -4,14 +4,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Card,
-  Button,
-  Table,
-  Form,
-  Tabs,
-  Tab,
-} from "react-bootstrap";
+import { Card, Button, Table, Form, Tabs, Tab } from "react-bootstrap";
 import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
@@ -129,16 +122,13 @@ export default function QuizEditorPage() {
         {/* ------------------- DETAILS TAB ------------------- */}
         <Tab eventKey="details" title="Details">
           <Card className="p-4">
-
             {/* Title */}
             <Form.Group className="mb-3">
               <Form.Label>Quiz Title</Form.Label>
               <Form.Control
                 type="text"
                 value={quiz.title}
-                onChange={(e) =>
-                  setQuiz({ ...quiz, title: e.target.value })
-                }
+                onChange={(e) => setQuiz({ ...quiz, title: e.target.value })}
               />
             </Form.Group>
 
@@ -156,7 +146,11 @@ export default function QuizEditorPage() {
             </Form.Group>
 
             {/* EXACT QUIZ DETAILS LAYOUT (VERTICAL) */}
-            <Table borderless className="align-middle" style={{ width: "100%" }}>
+            <Table
+              borderless
+              className="align-middle"
+              style={{ width: "100%" }}
+            >
               <tbody>
                 <EditorRow
                   label="Quiz Type"
@@ -177,9 +171,7 @@ export default function QuizEditorPage() {
 
                 <EditorRow
                   label="Points"
-                  input={
-                    <Form.Control type="number" value={points} disabled />
-                  }
+                  input={<Form.Control type="number" value={points} disabled />}
                 />
 
                 <EditorRow
@@ -348,14 +340,11 @@ export default function QuizEditorPage() {
                   label="Lock Questions After Answering"
                   input={
                     <Form.Select
-                      value={
-                        quiz.lockQuestionsAfterAnswering ? "Yes" : "No"
-                      }
+                      value={quiz.lockQuestionsAfterAnswering ? "Yes" : "No"}
                       onChange={(e) =>
                         setQuiz({
                           ...quiz,
-                          lockQuestionsAfterAnswering:
-                            e.target.value === "Yes",
+                          lockQuestionsAfterAnswering: e.target.value === "Yes",
                         })
                       }
                     >
