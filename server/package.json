@@ -32,9 +32,9 @@
   "homepage": "https://github.com/jknate/kambaz-quizzes-proj#readme",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "express-session": "^1.17.3",
     "dotenv": "^16.0.0",
+    "express": "^5.2.1",
+    "express-session": "^1.17.3",
     "uuid": "^9.0.0"
   }
 }
