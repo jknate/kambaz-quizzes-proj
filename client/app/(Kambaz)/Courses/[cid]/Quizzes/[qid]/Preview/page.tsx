@@ -1,28 +1,79 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState, useMemo } from "react";
-import { Card, Button, Form, Alert, Badge } from "react-bootstrap";
+import { useState, useMemo, useEffect } from "react";
+import { Card, Button, Form, Alert, Badge, Spinner } from "react-bootstrap";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { FaPencilAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import axios from "axios";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api";
 
 export default function QuizPreviewPage() {
   const { cid, qid } = useParams();
   const router = useRouter();
 
+  const currentUser = useSelector((s: any) => s.accountReducer.currentUser);
+  const isFaculty = currentUser?.role === "FACULTY";
+
   const quiz = useSelector((s: any) =>
     s.quizzesReducer.quizzes.find((q: any) => q._id === qid)
   );
 
-  // State to track user's answers (not persisted to DB)
+  // State to track user's answers
   const [userAnswers, setUserAnswers] = useState<{
     [questionIndex: number]: any;
   }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [attemptCount, setAttemptCount] = useState(0);
+  const [latestAttempt, setLatestAttempt] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Memoize questions to prevent dependency issues
   const questions = useMemo(() => quiz?.questions || [], [quiz]);
+
+  // Load previous attempt for students (not faculty)
+  useEffect(() => {
+    const loadAttempt = async () => {
+      if (!currentUser || !qid || isFaculty) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        // Get attempt count
+        const countRes = await axios.get(
+          `${API_BASE}/quizAttempts/quiz/${qid}/user/${currentUser._id}/count`
+        );
+        setAttemptCount(countRes.data.count);
+
+        // Get latest attempt
+        const attemptRes = await axios.get(
+          `${API_BASE}/quizAttempts/quiz/${qid}/user/${currentUser._id}/latest`
+        );
+
+        if (attemptRes.data) {
+          setLatestAttempt(attemptRes.data);
+          setIsSubmitted(true);
+
+          // Load answers from latest attempt
+          const loadedAnswers: any = {};
+          attemptRes.data.answers.forEach((ans: any, idx: number) => {
+            loadedAnswers[idx] = ans.answer;
+          });
+          setUserAnswers(loadedAnswers);
+        }
+      } catch (error) {
+        console.error("Error loading attempt:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAttempt();
+  }, [currentUser, qid, isFaculty]);
 
   // Handle answer change for a specific question
   const handleAnswerChange = (questionIndex: number, answer: any) => {
@@ -82,7 +133,7 @@ export default function QuizPreviewPage() {
   }, [isSubmitted, userAnswers, questions]);
 
   // Submit quiz
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Check if all questions are answered
     const unanswered = questions.filter((_: any, idx: number) => {
       const answer = userAnswers[idx];
@@ -96,33 +147,118 @@ export default function QuizPreviewPage() {
       if (!confirm) return;
     }
 
-    setIsSubmitted(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setSubmitting(true);
+
+    try {
+      // For students, save to database
+      if (!isFaculty && currentUser) {
+        // Prepare answers array
+        const answers = questions.map((q: any, idx: number) => ({
+          question: q._id,
+          answer: userAnswers[idx],
+        }));
+
+        // Submit attempt
+        await axios.post(`${API_BASE}/quizAttempts`, {
+          quiz: qid,
+          user: currentUser._id,
+          attempt: attemptCount + 1,
+          answers,
+          score,
+        });
+
+        setAttemptCount(attemptCount + 1);
+      }
+
+      setIsSubmitted(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } catch (error) {
+      console.error("Error submitting quiz:", error);
+      alert("Failed to submit quiz. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  // Reset quiz
+  // Reset quiz for retake
   const handleRetake = () => {
+    // Check if student can retake
+    if (!isFaculty) {
+      const maxAttempts = quiz?.howManyAttempts || 1;
+      const allowMultiple = quiz?.multipleAttempts || false;
+
+      if (!allowMultiple || attemptCount >= maxAttempts) {
+        alert("You have exhausted all attempts for this quiz.");
+        return;
+      }
+    }
+
     setUserAnswers({});
     setIsSubmitted(false);
+    setLatestAttempt(null);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   if (!quiz) return <div className="p-4">Quiz not found.</div>;
 
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center p-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
+
+  // Check if student has exceeded attempts
+  const maxAttempts = quiz?.howManyAttempts || 1;
+  const allowMultiple = quiz?.multipleAttempts || false;
+  const attemptsExhausted =
+    !isFaculty && !allowMultiple && attemptCount >= 1;
+  const reachedLimit =
+    !isFaculty && allowMultiple && attemptCount >= maxAttempts;
+
   return (
     <div className="container mt-4 mb-5" style={{ maxWidth: "900px" }}>
-      {/* Header with Edit Quiz button */}
+      {/* Header with Edit Quiz button (Faculty only) */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h2 className="fw-semibold mb-0">Quiz Preview</h2>
-        <Button
-          variant="primary"
-          className="d-flex align-items-center gap-2"
-          onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)}
-        >
-          <FaPencilAlt size={14} />
-          Edit Quiz
-        </Button>
+        <h2 className="fw-semibold mb-0">
+          {isFaculty ? "Quiz Preview" : "Take Quiz"}
+        </h2>
+        {isFaculty && (
+          <Button
+            variant="primary"
+            className="d-flex align-items-center gap-2"
+            onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)}
+          >
+            <FaPencilAlt size={14} />
+            Edit Quiz
+          </Button>
+        )}
       </div>
+
+      {/* Attempt Info for Students */}
+      {!isFaculty && (
+        <Alert variant="info" className="mb-3">
+          <strong>Attempts:</strong> {attemptCount} / {allowMultiple ? maxAttempts : 1}
+          {isSubmitted && latestAttempt && (
+            <>
+              <br />
+              <strong>Last Submitted:</strong>{" "}
+              {new Date(latestAttempt.submittedAt).toLocaleString()}
+            </>
+          )}
+        </Alert>
+      )}
+
+      {/* Exhausted Attempts Warning */}
+      {(attemptsExhausted || reachedLimit) && !isSubmitted && (
+        <Alert variant="warning" className="mb-3">
+          <strong>Notice:</strong> You have used all available attempts for this
+          quiz. You can review your previous submission below.
+        </Alert>
+      )}
 
       {/* Results Summary (shown after submission) */}
       {isSubmitted && (
@@ -141,7 +277,9 @@ export default function QuizPreviewPage() {
             )}
           </p>
           <p className="mb-0 text-muted">
-            This is a preview. Results are not saved to the database.
+            {isFaculty
+              ? "This is a preview. Results are not saved to the database."
+              : "Your answers and score have been saved."}
           </p>
         </Alert>
       )}
@@ -329,8 +467,13 @@ export default function QuizPreviewPage() {
       <div className="d-flex justify-content-center gap-3 mt-4">
         {!isSubmitted ? (
           <>
-            <Button variant="danger" onClick={handleSubmit} size="lg">
-              Submit Quiz
+            <Button
+              variant="danger"
+              onClick={handleSubmit}
+              size="lg"
+              disabled={submitting || attemptsExhausted || reachedLimit}
+            >
+              {submitting ? "Submitting..." : "Submit Quiz"}
             </Button>
             <Button
               variant="secondary"
@@ -342,18 +485,28 @@ export default function QuizPreviewPage() {
           </>
         ) : (
           <>
-            <Button variant="primary" onClick={handleRetake} size="lg">
-              Retake Quiz
-            </Button>
-            <Button
-              variant="success"
-              onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)}
-              size="lg"
-              className="d-flex align-items-center gap-2"
-            >
-              <FaPencilAlt />
-              Edit Quiz
-            </Button>
+            {/* Retake button - only show if allowed */}
+            {(isFaculty || (!attemptsExhausted && !reachedLimit)) && (
+              <Button variant="primary" onClick={handleRetake} size="lg">
+                Retake Quiz
+              </Button>
+            )}
+
+            {/* Edit button - faculty only */}
+            {isFaculty && (
+              <Button
+                variant="success"
+                onClick={() =>
+                  router.push(`/Courses/${cid}/Quizzes/${qid}/Edit`)
+                }
+                size="lg"
+                className="d-flex align-items-center gap-2"
+              >
+                <FaPencilAlt />
+                Edit Quiz
+              </Button>
+            )}
+
             <Button
               variant="secondary"
               onClick={() => router.push(`/Courses/${cid}/Quizzes/${qid}`)}
