@@ -7,6 +7,7 @@ import { Enrollment } from "./models/Enrollment.js";
 import { Module } from "./models/Module.js";
 import { Quiz } from "./models/Quiz.js";
 import { Question } from "./models/Question.js";
+import { QuizAttempt } from "./models/QuizAttempt.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -27,6 +28,7 @@ async function seedDatabase() {
     await Module.deleteMany({});
     await Quiz.deleteMany({});
     await Question.deleteMany({});
+    await QuizAttempt.deleteMany({});
     console.log("Cleared existing data");
 
     // Read JSON files from client database
@@ -81,6 +83,11 @@ async function seedDatabase() {
 
     await Question.insertMany(questionsData);
     console.log(`Inserted ${questionsData.length} questions`);
+
+    // Note: QuizAttempts are created when students take quizzes, not seeded
+    console.log(
+      "QuizAttempts collection ready (empty - populated by student submissions)"
+    );
 
     console.log("Database seeded successfully!");
     process.exit(0);
