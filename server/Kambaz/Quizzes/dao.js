@@ -3,15 +3,15 @@ import { Quiz } from "../../models/Quiz.js";
 
 export default function QuizzesDao() {
   function findAllQuizzes() {
-    return Quiz.find();
+    return Quiz.find().populate("questions");
   }
 
   function findQuizById(id) {
-    return Quiz.findById(id);
+    return Quiz.findById(id).populate("questions");
   }
 
   function findQuizzesForCourse(courseId) {
-    return Quiz.find({ course: courseId });
+    return Quiz.find({ course: courseId }).populate("questions");
   }
 
   function createQuiz(quiz) {

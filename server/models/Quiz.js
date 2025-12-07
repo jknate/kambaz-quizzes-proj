@@ -21,7 +21,7 @@ const quizSchema = new mongoose.Schema(
     availableDate: Date,
     availableUntilDate: Date,
     published: Boolean,
-    questions: [{ type: Object }],
+    questions: [{ type: String, ref: "Question" }],
     points: Number,
     Questions: Number,
   },

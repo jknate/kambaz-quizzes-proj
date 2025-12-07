@@ -1,46 +1,65 @@
 [
   {
-    "_id": "Q101",
-    "title": "Capital Cities",
+    "_id": "QUES001",
+    "title": "Rocket Propulsion Type",
     "course": "RS101",
-    "type": "fill-in-the-blank",
-    "points": 10,
-    "question": "The capital of France is _______.",
-    "possibleAnswers": ["Paris", "paris", "PARIS"],
+    "type": "multiple-choice",
+    "points": 5,
+    "question": "What type of propulsion system uses expelled mass to generate thrust?",
+    "possibleAnswers": ["Chemical propulsion", "Electric propulsion", "Nuclear propulsion", "Solar sail"],
+    "correctAnswerIndex": 0,
     "caseSensitive": false
   },
   {
-    "_id": "Q102",
-    "title": "Programming Concepts",
+    "_id": "QUES002",
+    "title": "Specific Impulse",
     "course": "RS101",
     "type": "fill-in-the-blank",
-    "points": 15,
-    "question": "In JavaScript, the keyword _______ is used to declare a variable that cannot be reassigned.",
-    "possibleAnswers": ["const"],
-    "caseSensitive": true
-  },
-  {
-    "_id": "Q103",
-    "title": "Math Basics",
-    "course": "CS101",
-    "type": "fill-in-the-blank",
-    "points": 8,
-    "question": "The result of 2 + 2 is _______.",
-    "possibleAnswers": ["4", "four", "Four"],
+    "points": 5,
+    "question": "The measure of rocket engine efficiency is called specific _______.",
+    "possibleAnswers": ["impulse", "Impulse", "IMPULSE"],
     "caseSensitive": false
   },
   {
-    "_id": "Q104",
-    "title": "History Question",
-    "course": "CS101",
+    "_id": "QUES003",
+    "title": "Combustion Chamber",
+    "course": "RS101",
+    "type": "multiple-choice",
+    "points": 5,
+    "question": "In a combustion chamber, what happens to fuel and oxidizer?",
+    "possibleAnswers": ["They are stored", "They are mixed and ignited", "They are cooled", "They are separated"],
+    "correctAnswerIndex": 1,
+    "caseSensitive": false
+  },
+  {
+    "_id": "QUES004",
+    "title": "Combustion Temperature",
+    "course": "RS101",
+    "type": "true-false",
+    "points": 5,
+    "question": "Higher combustion temperatures generally result in better rocket performance.",
+    "correctAnswer": "true",
+    "caseSensitive": false
+  },
+  {
+    "_id": "QUES005",
+    "title": "Nozzle Function",
+    "course": "RS101",
+    "type": "multiple-choice",
+    "points": 5,
+    "question": "What is the primary function of a rocket nozzle?",
+    "possibleAnswers": ["To cool the exhaust", "To accelerate exhaust gases", "To mix fuel and oxidizer", "To store propellant"],
+    "correctAnswerIndex": 1,
+    "caseSensitive": false
+  },
+  {
+    "_id": "QUES006",
+    "title": "Nozzle Shape",
+    "course": "RS101",
     "type": "fill-in-the-blank",
-    "points": 12,
-    "question": "The first president of the United States was _______ _______.",
-    "possibleAnswers": [
-      "George Washington",
-      "george washington",
-      "GEORGE WASHINGTON"
-    ],
+    "points": 5,
+    "question": "A convergent-divergent nozzle is also known as a _______ nozzle.",
+    "possibleAnswers": ["de Laval", "De Laval", "de laval", "DE LAVAL"],
     "caseSensitive": false
   }
 ]
