@@ -15,7 +15,14 @@ export async function GET(
   }`;
 
   try {
-    const response = await fetch(backendUrl);
+    console.log(`[PROXY] Fetching: ${backendUrl}`);
+    const response = await fetch(backendUrl, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log(`[PROXY] Response status: ${response.status}`);
     const data = await response.text();
 
     return new NextResponse(data, {
@@ -26,9 +33,16 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error(`Proxy GET error for ${backendUrl}:`, error);
+    console.error(`[PROXY ERROR] URL: ${backendUrl}`);
+    console.error(`[PROXY ERROR] Error:`, error);
+    console.error(`[PROXY ERROR] BACKEND_URL env:`, BACKEND_URL);
     return NextResponse.json(
-      { error: "Failed to fetch from backend", details: String(error) },
+      {
+        error: "Failed to fetch from backend",
+        details: String(error),
+        backendUrl: backendUrl,
+        envUrl: BACKEND_URL
+      },
       { status: 500 }
     );
   }
