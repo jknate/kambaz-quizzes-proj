@@ -8,8 +8,6 @@ import { useSelector } from "react-redux";
 import { FaPencilAlt, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:4000/api";
-
 export default function QuizPreviewPage() {
   const { cid, qid } = useParams();
   const router = useRouter();
@@ -17,9 +15,7 @@ export default function QuizPreviewPage() {
   const currentUser = useSelector((s: any) => s.accountReducer.currentUser);
   const isFaculty = currentUser?.role === "FACULTY";
 
-  const quiz = useSelector((s: any) =>
-    s.quizzesReducer.quizzes.find((q: any) => q._id === qid)
-  );
+  const [quiz, setQuiz] = useState<any>(null);
 
   // State to track user's answers
   const [userAnswers, setUserAnswers] = useState<{
@@ -34,6 +30,22 @@ export default function QuizPreviewPage() {
   // Memoize questions to prevent dependency issues
   const questions = useMemo(() => quiz?.questions || [], [quiz]);
 
+  // Fetch quiz from MongoDB
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        const response = await axios.get(`/api/proxy/quizzes/${qid}`);
+        setQuiz(response.data);
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+      }
+    };
+
+    if (qid) {
+      fetchQuiz();
+    }
+  }, [qid]);
+
   // Load previous attempt for students (not faculty)
   useEffect(() => {
     const loadAttempt = async () => {
@@ -45,13 +57,13 @@ export default function QuizPreviewPage() {
       try {
         // Get attempt count
         const countRes = await axios.get(
-          `${API_BASE}/quizAttempts/quiz/${qid}/user/${currentUser._id}/count`
+          `/api/proxy/quizAttempts/quiz/${qid}/user/${currentUser._id}/count`
         );
         setAttemptCount(countRes.data.count);
 
         // Get latest attempt
         const attemptRes = await axios.get(
-          `${API_BASE}/quizAttempts/quiz/${qid}/user/${currentUser._id}/latest`
+          `/api/proxy/quizAttempts/quiz/${qid}/user/${currentUser._id}/latest`
         );
 
         if (attemptRes.data) {
@@ -159,7 +171,7 @@ export default function QuizPreviewPage() {
         }));
 
         // Submit attempt
-        await axios.post(`${API_BASE}/quizAttempts`, {
+        await axios.post(`/api/proxy/quizAttempts`, {
           quiz: qid,
           user: currentUser._id,
           attempt: attemptCount + 1,
@@ -214,8 +226,7 @@ export default function QuizPreviewPage() {
   // Check if student has exceeded attempts
   const maxAttempts = quiz?.howManyAttempts || 1;
   const allowMultiple = quiz?.multipleAttempts || false;
-  const attemptsExhausted =
-    !isFaculty && !allowMultiple && attemptCount >= 1;
+  const attemptsExhausted = !isFaculty && !allowMultiple && attemptCount >= 1;
   const reachedLimit =
     !isFaculty && allowMultiple && attemptCount >= maxAttempts;
 
@@ -241,7 +252,8 @@ export default function QuizPreviewPage() {
       {/* Attempt Info for Students */}
       {!isFaculty && (
         <Alert variant="info" className="mb-3">
-          <strong>Attempts:</strong> {attemptCount} / {allowMultiple ? maxAttempts : 1}
+          <strong>Attempts:</strong> {attemptCount} /{" "}
+          {allowMultiple ? maxAttempts : 1}
           {isSubmitted && latestAttempt && (
             <>
               <br />

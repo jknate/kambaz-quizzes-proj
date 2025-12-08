@@ -14,9 +14,10 @@ export default function QuizzesDao() {
     return Quiz.find({ course: courseId }).populate("questions");
   }
 
-  function createQuiz(quiz) {
+  async function createQuiz(quiz) {
     const newQuiz = new Quiz({ ...quiz, _id: uuidv4() });
-    return newQuiz.save();
+    await newQuiz.save();
+    return Quiz.findById(newQuiz._id).populate("questions");
   }
 
   function updateQuiz(quizId, quizUpdates) {

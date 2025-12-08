@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, Button, Table } from "react-bootstrap";
 import { FaPencilAlt } from "react-icons/fa";
 import { useParams, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 export default function QuizDetailsScreen() {
   const { cid, qid } = useParams();
@@ -13,9 +15,37 @@ export default function QuizDetailsScreen() {
   const currentUser = useSelector((s: any) => s.accountReducer.currentUser);
   const isFaculty = currentUser?.role === "FACULTY";
 
-  const quiz = useSelector((s: any) =>
-    s.quizzesReducer.quizzes.find((q: any) => q._id === qid)
-  );
+  const [quiz, setQuiz] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch quiz from MongoDB
+  useEffect(() => {
+    const fetchQuiz = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/proxy/quizzes/${qid}`);
+        setQuiz(response.data);
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (qid) {
+      fetchQuiz();
+    }
+  }, [qid]);
+
+  if (loading) {
+    return (
+      <div className="container mt-4 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   if (!quiz) return <div className="p-4">Quiz not found.</div>;
 
