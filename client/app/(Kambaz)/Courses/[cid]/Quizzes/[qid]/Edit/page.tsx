@@ -632,14 +632,21 @@ export default function QuizEditorPage() {
               </>
             ) : questionType === "fill-in-the-blank" ? (
               <FillInTheBlankEditor
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                        title: "",
+                        points: 1,
+                        type: "fill-in-the-blank",
+                        question: "",
+                        possibleAnswers: [""],
+                        caseSensitive: false,
+                      }
+                }
                 onSave={handleAddQuestion}
                 onCancel={handleCancelEditor}
                 isEditing={editingQuestionIdx !== null}
-                initialQuestion={
-                  editingQuestionIdx !== null
-                    ? quiz.questions[editingQuestionIdx]
-                    : undefined
-                }
               />
             ) : questionType === "multiple-choice" ? (
               <MultipleChoiceEditor
@@ -669,7 +676,8 @@ export default function QuizEditorPage() {
                         points: 1,
                         type: "true-false",
                         question: "",
-                        correctAnswer: false,
+                        possibleAnswers: ["True", "False"],
+                        correctAnswerIndex: 0,
                       }
                 }
                 onCancel={handleCancelEditor}

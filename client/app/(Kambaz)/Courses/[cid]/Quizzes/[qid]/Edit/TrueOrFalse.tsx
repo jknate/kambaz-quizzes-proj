@@ -2,31 +2,26 @@
 
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { updateQuestion } from "../../questionsReducer";
 
-export default function TrueOrFalse({ question, onCancel }: any) {
-  const dispatch = useDispatch();
-
-  const [title, setTitle] = useState<string>(question?.title ?? "");
-  const [points, setPoints] = useState<number>(question?.points ?? 1);
-  const [prompt, setPrompt] = useState<string>(question?.text ?? "");
-  const [correct, setCorrect] = useState<boolean>(
-    question?.correctAnswer === undefined ? true : !!question.correctAnswer
+export default function TrueOrFalse({ question, onCancel, onSave, isEditing }: any) {
+  const [title, setTitle] = useState<string>(question?.title || "");
+  const [points, setPoints] = useState<number>(question?.points || 1);
+  const [prompt, setPrompt] = useState<string>(question?.question || "");
+  // Store as index: 0 = True, 1 = False (matching multiple-choice format)
+  const [correct, setCorrect] = useState<number>(
+    question?.correctAnswerIndex ?? 0
   );
 
-  const onSave = () => {
-    dispatch(
-      updateQuestion({
-        ...question,
-        title,
-        points,
-        text: prompt,
-        type: "TRUE_FALSE",
-        correctAnswer: correct,
-      })
-    );
-    alert("Question updated!");
+  const handleSave = () => {
+    onSave({
+      ...question,
+      title,
+      points,
+      question: prompt,
+      type: "true-false",
+      possibleAnswers: ["True", "False"],
+      correctAnswerIndex: correct,
+    });
   };
 
   return (
@@ -74,11 +69,11 @@ export default function TrueOrFalse({ question, onCancel }: any) {
       <div className="mb-3">
         <label className="fw-bold">Correct Answer:</label>
         <Form.Select
-          value={correct ? "true" : "false"}
-          onChange={(e) => setCorrect(e.target.value === "true")}
+          value={correct}
+          onChange={(e) => setCorrect(Number(e.target.value))}
         >
-          <option value="true">True</option>
-          <option value="false">False</option>
+          <option value={0}>True</option>
+          <option value={1}>False</option>
         </Form.Select>
       </div>
 
@@ -86,8 +81,8 @@ export default function TrueOrFalse({ question, onCancel }: any) {
         <Button variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={onSave}>
-          Save Question
+        <Button variant="danger" onClick={handleSave}>
+          {isEditing ? "Update Question" : "Add Question"}
         </Button>
       </div>
     </div>
