@@ -76,10 +76,10 @@ export default function QuizEditorPage() {
   };
 
   const handleEditQuestion = (question: any, idx: number) => {
-  setEditingQuestionIdx(idx);
-  setQuestionType(question.type);
-  setShowQuestionEditor(true);
-};
+    setEditingQuestionIdx(idx);
+    setQuestionType(question.type);
+    setShowQuestionEditor(true);
+  };
 
   const handleDeleteQuestion = (question: any) => {
     const updatedQuestions = (quiz.questions || []).filter(
@@ -89,7 +89,7 @@ export default function QuizEditorPage() {
   };
 
   const handleAddQuestion = (question: any) => {
-    let updatedQuestions = [...(quiz.questions || [])];     
+    let updatedQuestions = [...(quiz.questions || [])];
     if (editingQuestionIdx !== null) {
       // Update existing question
       updatedQuestions[editingQuestionIdx] = question;
@@ -109,6 +109,14 @@ export default function QuizEditorPage() {
     setEditingQuestionIdx(null);
     setQuestionType(null);
   }
+
+  const handleChangeEditorType = (
+    newType: "multiple-choice" | "fill-in-the-blank"
+  ) => {
+    setQuestionType(newType);
+    setShowQuestionEditor(true);
+  };
+
 
   return (
     <div className="container mt-4" style={{ maxWidth: "950px" }}>
@@ -429,34 +437,16 @@ export default function QuizEditorPage() {
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="fw-semibold mb-0">Questions Editor</h5>
 
-                  <div className="d-flex gap-2">
-                    {/* Question Type Dropdown */}
-                    <Form.Select
-                      value={questionType || ""}
-                      onChange={(e) =>
-                        setQuestionType(
-                          e.target.value as "multiple-choice" | "fill-in-the-blank"
-                        )
-                      }
-                      style={{ width: "200px" }}
-                    >
-                      <option value="">Select Question Type</option>
-                      <option value="multiple-choice">Multiple Choice</option>
-                      <option value="fill-in-the-blank">Fill in the Blank</option>
-                    </Form.Select>
-
-                    {/* Add Question Button */}
-                    <Button
-                      variant="primary"
-                      disabled={!questionType}
-                      onClick={() => {
-                        setEditingQuestionIdx(null);
-                        setShowQuestionEditor(true);
-                      }}
-                    >
-                      + Add Question
-                    </Button>
-                  </div>
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setQuestionType("multiple-choice"); // default type
+                      setEditingQuestionIdx(null);
+                      setShowQuestionEditor(true);
+                    }}
+                  >
+                    + Add Question
+                  </Button>
                 </div>
 
 
@@ -483,12 +473,14 @@ export default function QuizEditorPage() {
               <FillInTheBlankEditor
                 onSave={handleAddQuestion}
                 onCancel={handleCancelEditor}
+                onChangeType={handleChangeEditorType}
                 initialQuestion={
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : undefined
                 }
               />
+
             ) : questionType === "multiple-choice" ? (
               <MultipleChoiceEditor
                 question={
@@ -505,6 +497,7 @@ export default function QuizEditorPage() {
                 }
                 onCancel={handleCancelEditor}
                 onSave={handleAddQuestion}
+                onChangeType={handleChangeEditorType}
               />
             ) : null}
           </Card>

@@ -17,12 +17,14 @@ interface FillInTheBlankQuestion {
 interface FillInTheBlankEditorProps {
   onSave: (question: FillInTheBlankQuestion) => void;
   onCancel: () => void;
+  onChangeType: (type: "multiple-choice" | "fill-in-the-blank") => void;
   initialQuestion?: FillInTheBlankQuestion;
 }
 
 export default function FillInTheBlankEditor({
   onSave,
   onCancel,
+  onChangeType,
   initialQuestion,
 }: FillInTheBlankEditorProps) {
   const [question, setQuestion] = useState<FillInTheBlankQuestion>(
@@ -96,6 +98,24 @@ export default function FillInTheBlankEditor({
         {initialQuestion ? "Edit" : "Create"} Fill in the Blank Question
       </h5>
 
+      {/* 🔥 Question Type Dropdown (Rubric Required) */}
+      <Form.Group className="mb-3">
+        <Form.Label className="fw-semibold">Question Type</Form.Label>
+        <Form.Select
+          value={question.type}
+          onChange={(e) => {
+            const newType = e.target.value;
+            onCancel(); // close current editor
+            onChangeType(
+              newType as "multiple-choice" | "fill-in-the-blank"
+            ); // open new one
+          }}
+        >
+          <option value="fill-in-the-blank">Fill in the Blank</option>
+          <option value="multiple-choice">Multiple Choice</option>
+        </Form.Select>
+      </Form.Group>
+
       <Form>
         {/* Title */}
         <Form.Group className="mb-3">
@@ -108,9 +128,6 @@ export default function FillInTheBlankEditor({
             }
             placeholder="e.g., Capital of France"
           />
-          <Form.Text className="text-muted">
-            A short title to identify this question
-          </Form.Text>
         </Form.Group>
 
         {/* Points */}
@@ -139,12 +156,8 @@ export default function FillInTheBlankEditor({
             onChange={(e) =>
               setQuestion({ ...question, question: e.target.value })
             }
-            placeholder="Enter the question. Use _______ (7 underscores) to indicate where the blank should appear."
+            placeholder="Enter the question. Use _______ to indicate where the blank should appear."
           />
-          <Form.Text className="text-muted">
-            Use <code>_______</code> to mark where the student fills in the
-            answer
-          </Form.Text>
         </Form.Group>
 
         {/* Preview */}
@@ -171,12 +184,7 @@ export default function FillInTheBlankEditor({
           <Form.Label className="fw-semibold">
             Correct Answers (Possible Variations)
           </Form.Label>
-          <Form.Text className="d-block text-muted mb-2">
-            Add all variations of correct answers. Students must match at least
-            one.
-          </Form.Text>
 
-          {/* Answer List */}
           {question.possibleAnswers.length > 0 && (
             <ListGroup className="mb-3">
               {question.possibleAnswers.map((answer, idx) => (
@@ -190,9 +198,9 @@ export default function FillInTheBlankEditor({
                       className="form-control form-control-sm"
                       value={answer}
                       onChange={(e) => updateAnswer(idx, e.target.value)}
-                      placeholder={`Answer ${idx + 1}`}
                     />
                   </div>
+
                   {question.possibleAnswers.length > 1 && (
                     <Button
                       variant="outline-danger"
@@ -242,9 +250,6 @@ export default function FillInTheBlankEditor({
               })
             }
           />
-          <Form.Text className="text-muted ms-3">
-            If checked, answers must match exactly (e.g., Paris ≠ paris)
-          </Form.Text>
         </Form.Group>
 
         {/* Action Buttons */}
@@ -255,11 +260,6 @@ export default function FillInTheBlankEditor({
           <Button
             variant="primary"
             onClick={handleSave}
-            disabled={
-              !question.title ||
-              !question.question ||
-              question.possibleAnswers.filter((a) => a.trim()).length === 0
-            }
           >
             {initialQuestion ? "Update Question" : "Add Question"}
           </Button>
