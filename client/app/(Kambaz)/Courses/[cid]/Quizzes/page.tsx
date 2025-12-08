@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
 import { addQuiz, deleteQuiz, togglePublishQuiz, setQuizzes } from "./reducer";
 
 export default function Quizzes() {
@@ -19,7 +20,18 @@ export default function Quizzes() {
   const allQuizzes = useSelector(
     (state: any) => state.quizzesReducer.quizzes || []
   );
-  const quizzes = allQuizzes.filter((quiz: any) => quiz.course === cid);
+  const quizzes = allQuizzes
+    .filter((quiz: any) => quiz.course === cid)
+    .sort((a: any, b: any) => {
+      // Sort by availableDate - quizzes without dates go to the end
+      if (!a.availableDate && !b.availableDate) return 0;
+      if (!a.availableDate) return 1;
+      if (!b.availableDate) return -1;
+      return (
+        new Date(a.availableDate).getTime() -
+        new Date(b.availableDate).getTime()
+      );
+    });
 
   // Fetch quizzes from MongoDB on component mount
   useEffect(() => {
@@ -38,33 +50,78 @@ export default function Quizzes() {
     fetchQuizzes();
   }, [dispatch]);
 
-  const handleAddQuiz = () => {
-    const newQuiz = {
-      _id: uuidv4(),
-      course: cid as string,
-      title: "New Quiz",
-      description: "",
-      quizType: "Graded Quiz",
-      assignmentGroup: "Quizzes",
-      shuffleAnswers: true,
-      timeLimit: 20,
-      multipleAttempts: false,
-      howManyAttempts: 1,
-      showCorrectAnswers: "Immediately",
-      accessCode: "",
-      oneQuestionAtATime: true,
-      webcamRequired: false,
-      lockQuestionsAfterAnswering: false,
-      dueDate: "",
-      availableDate: "",
-      untilDate: "",
-      published: false,
-      questions: [],
-      points: 0,
-    };
+  const handleAddQuiz = async () => {
+    try {
+      const newQuiz = {
+        _id: uuidv4(),
+        course: cid as string,
+        title: "New Quiz",
+        description: "",
+        quizType: "Graded Quiz",
+        assignmentGroup: "Quizzes",
+        shuffleAnswers: true,
+        timeLimit: 20,
+        multipleAttempts: false,
+        howManyAttempts: 1,
+        showCorrectAnswers: "Immediately",
+        accessCode: "",
+        oneQuestionAtATime: true,
+        webcamRequired: false,
+        lockQuestionsAfterAnswering: false,
+        dueDate: "",
+        availableDate: "",
+        untilDate: "",
+        published: false,
+        questions: [],
+        points: 0,
+      };
 
-    dispatch(addQuiz(newQuiz));
-    router.push(`/Courses/${cid}/Quizzes/${newQuiz._id}`);
+      // Create quiz in MongoDB first
+      const response = await axios.post(`/api/proxy/quizzes`, newQuiz);
+      const savedQuiz = response.data;
+
+      // Then update Redux store with the saved quiz from the server
+      dispatch(addQuiz(savedQuiz));
+      router.push(`/Courses/${cid}/Quizzes/${savedQuiz._id}`);
+    } catch (error) {
+      console.error("Error creating quiz:", error);
+      alert("Failed to create quiz. Please try again.");
+    }
+  };
+
+  const handleTogglePublish = async (e: React.MouseEvent, quiz: any) => {
+    e.stopPropagation();
+    try {
+      // Update in MongoDB
+      await axios.put(`/api/proxy/quizzes/${quiz._id}`, {
+        ...quiz,
+        published: !quiz.published,
+      });
+
+      // Update Redux store
+      dispatch(togglePublishQuiz(quiz._id));
+    } catch (error) {
+      console.error("Error toggling publish status:", error);
+      alert("Failed to update quiz. Please try again.");
+    }
+  };
+
+  const handleDeleteQuiz = async (e: React.MouseEvent, quizId: string) => {
+    e.stopPropagation();
+    if (!confirm("Are you sure you want to delete this quiz?")) {
+      return;
+    }
+
+    try {
+      // Delete from MongoDB
+      await axios.delete(`/api/proxy/quizzes/${quizId}`);
+
+      // Update Redux store
+      dispatch(deleteQuiz(quizId));
+    } catch (error) {
+      console.error("Error deleting quiz:", error);
+      alert("Failed to delete quiz. Please try again.");
+    }
   };
 
   return (
@@ -128,10 +185,7 @@ export default function Quizzes() {
                   <div className="d-flex align-items-center gap-3">
                     <button
                       className="btn btn-outline-secondary btn-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        dispatch(togglePublishQuiz(quiz._id));
-                      }}
+                      onClick={(e) => handleTogglePublish(e, quiz)}
                     >
                       {quiz.published ? "Unpublish" : "Publish"}
                     </button>
@@ -148,10 +202,7 @@ export default function Quizzes() {
 
                     <button
                       className="btn btn-link text-danger p-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        dispatch(deleteQuiz(quiz._id));
-                      }}
+                      onClick={(e) => handleDeleteQuiz(e, quiz._id)}
                     >
                       Delete
                     </button>

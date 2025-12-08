@@ -69,10 +69,10 @@ export default function QuizzesRoutes(app) {
     }
   };
 
-  app.get("/quizzes", findAllQuizzes);
-  app.get("/quizzes/:quizId", findQuizById);
-  app.get("/courses/:courseId/quizzes", findQuizzesForCourse);
-  app.post("/quizzes", createQuiz);
-  app.put("/quizzes/:quizId", updateQuiz);
-  app.delete("/quizzes/:quizId", deleteQuiz);
+  app.get("/api/quizzes", findAllQuizzes);
+  app.get("/api/quizzes/:quizId", findQuizById);
+  app.get("/api/courses/:courseId/quizzes", findQuizzesForCourse);
+  app.post("/api/quizzes", createQuiz);
+  app.put("/api/quizzes/:quizId", updateQuiz);
+  app.delete("/api/quizzes/:quizId", deleteQuiz);
 }

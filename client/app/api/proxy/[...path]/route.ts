@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:4000";
 
 export async function GET(
   request: NextRequest,
@@ -10,12 +10,19 @@ export async function GET(
   const path = resolvedParams.path.join("/");
   const url = new URL(request.url);
   const searchParams = url.searchParams.toString();
-  const backendUrl = `${BACKEND_URL}/${path}${
+  const backendUrl = `${BACKEND_URL}/api/${path}${
     searchParams ? `?${searchParams}` : ""
   }`;
 
   try {
-    const response = await fetch(backendUrl);
+    console.log(`[PROXY] Fetching: ${backendUrl}`);
+    const response = await fetch(backendUrl, {
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    console.log(`[PROXY] Response status: ${response.status}`);
     const data = await response.text();
 
     return new NextResponse(data, {
@@ -26,9 +33,16 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error(`Proxy GET error for ${backendUrl}:`, error);
+    console.error(`[PROXY ERROR] URL: ${backendUrl}`);
+    console.error(`[PROXY ERROR] Error:`, error);
+    console.error(`[PROXY ERROR] BACKEND_URL env:`, BACKEND_URL);
     return NextResponse.json(
-      { error: "Failed to fetch from backend", details: String(error) },
+      {
+        error: "Failed to fetch from backend",
+        details: String(error),
+        backendUrl: backendUrl,
+        envUrl: BACKEND_URL
+      },
       { status: 500 }
     );
   }
@@ -41,7 +55,7 @@ export async function POST(
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
   const body = await request.text();
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const backendUrl = `${BACKEND_URL}/api/${path}`;
 
   try {
     const response = await fetch(backendUrl, {
@@ -76,7 +90,7 @@ export async function PUT(
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
   const body = await request.text();
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const backendUrl = `${BACKEND_URL}/api/${path}`;
 
   try {
     const response = await fetch(backendUrl, {
@@ -110,7 +124,7 @@ export async function DELETE(
 ) {
   const resolvedParams = await params;
   const path = resolvedParams.path.join("/");
-  const backendUrl = `${BACKEND_URL}/${path}`;
+  const backendUrl = `${BACKEND_URL}/api/${path}`;
 
   try {
     const response = await fetch(backendUrl, {

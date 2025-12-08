@@ -18,12 +18,14 @@ interface FillInTheBlankEditorProps {
   onSave: (question: FillInTheBlankQuestion) => void;
   onCancel: () => void;
   initialQuestion?: FillInTheBlankQuestion;
+  isEditing?: boolean;
 }
 
 export default function FillInTheBlankEditor({
   onSave,
   onCancel,
   initialQuestion,
+  isEditing,
 }: FillInTheBlankEditorProps) {
   const [question, setQuestion] = useState<FillInTheBlankQuestion>(
     initialQuestion || {
@@ -261,7 +263,7 @@ export default function FillInTheBlankEditor({
               question.possibleAnswers.filter((a) => a.trim()).length === 0
             }
           >
-            {initialQuestion ? "Update Question" : "Add Question"}
+            {isEditing ? "Update Question" : "Add Question"}
           </Button>
         </div>
       </Form>
