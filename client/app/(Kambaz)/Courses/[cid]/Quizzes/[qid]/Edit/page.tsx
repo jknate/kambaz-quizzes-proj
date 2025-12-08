@@ -9,7 +9,8 @@ import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
-import axios from "axios";
+import axios from "axios";import TrueOrFalse from "./TrueOrFalse";
+
 
 export default function QuizEditorPage() {
   const { cid, qid } = useParams();
@@ -593,9 +594,7 @@ export default function QuizEditorPage() {
                       <option value="fill-in-the-blank">
                         Fill in the Blank
                       </option>
-                      <option value="fill-in-the-blank">
-                        True or False
-                      </option>
+                      <option value="true-false">True/False</option>
                     </Form.Select>
 
                     {/* Add Question Button */}
@@ -633,14 +632,21 @@ export default function QuizEditorPage() {
               </>
             ) : questionType === "fill-in-the-blank" ? (
               <FillInTheBlankEditor
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                        title: "",
+                        points: 1,
+                        type: "fill-in-the-blank",
+                        question: "",
+                        possibleAnswers: [""],
+                        caseSensitive: false,
+                      }
+                }
                 onSave={handleAddQuestion}
                 onCancel={handleCancelEditor}
                 isEditing={editingQuestionIdx !== null}
-                initialQuestion={
-                  editingQuestionIdx !== null
-                    ? quiz.questions[editingQuestionIdx]
-                    : undefined
-                }
               />
             ) : questionType === "multiple-choice" ? (
               <MultipleChoiceEditor
@@ -660,7 +666,27 @@ export default function QuizEditorPage() {
                 onSave={handleAddQuestion}
                 isEditing={editingQuestionIdx !== null}
               />
-            ) : null}
+            ) : questionType === "true-false" ? (
+              <TrueOrFalse
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                        title: "",
+                        points: 1,
+                        type: "true-false",
+                        question: "",
+                        possibleAnswers: ["True", "False"],
+                        correctAnswerIndex: 0,
+                      }
+                }
+                onCancel={handleCancelEditor}
+                onSave={handleAddQuestion}
+                isEditing={editingQuestionIdx !== null}
+              />
+            ) : (
+              null
+            )}
           </Card>
         </Tab>
       </Tabs>

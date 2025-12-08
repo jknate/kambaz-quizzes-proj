@@ -4,53 +4,33 @@ import { useState } from "react";
 import { Form, Button, Card, ListGroup } from "react-bootstrap";
 import { FaTrash, FaPlus } from "react-icons/fa";
 
-interface FillInTheBlankQuestion {
-  _id?: string;
-  type: "fill-in-the-blank";
-  title: string;
-  points: number;
-  question: string;
-  possibleAnswers: string[];
-  caseSensitive: boolean;
-}
-
-interface FillInTheBlankEditorProps {
-  onSave: (question: FillInTheBlankQuestion) => void;
-  onCancel: () => void;
-  initialQuestion?: FillInTheBlankQuestion;
-  isEditing?: boolean;
-}
-
 export default function FillInTheBlankEditor({
+  question,
   onSave,
   onCancel,
-  initialQuestion,
   isEditing,
-}: FillInTheBlankEditorProps) {
-  const [question, setQuestion] = useState<FillInTheBlankQuestion>(
-    initialQuestion || {
-      type: "fill-in-the-blank",
-      title: "",
-      points: 1,
-      question: "",
-      possibleAnswers: [""],
-      caseSensitive: false,
-    }
+}: any) {
+  const [title, setTitle] = useState(question?.title || "");
+  const [points, setPoints] = useState(question?.points || 1);
+  const [prompt, setPrompt] = useState(question?.question || "");
+  const [possibleAnswers, setPossibleAnswers] = useState<string[]>(
+    question?.possibleAnswers || [""]
+  );
+  const [caseSensitive, setCaseSensitive] = useState(
+    question?.caseSensitive || false
   );
 
   const [newAnswer, setNewAnswer] = useState("");
 
   const handleSave = () => {
-    const filteredAnswers = question.possibleAnswers.filter(
-      (a) => a.trim() !== ""
-    );
+    const filteredAnswers = possibleAnswers.filter((a: string) => a.trim() !== "");
 
-    if (!question.title.trim()) {
+    if (!title.trim()) {
       alert("Please enter a question title");
       return;
     }
 
-    if (!question.question.trim()) {
+    if (!prompt.trim()) {
       alert("Please enter the question text");
       return;
     }
@@ -62,40 +42,36 @@ export default function FillInTheBlankEditor({
 
     onSave({
       ...question,
+      title,
+      points,
+      question: prompt,
+      type: "fill-in-the-blank",
       possibleAnswers: filteredAnswers,
+      caseSensitive,
     });
   };
 
   const addAnswer = () => {
     if (newAnswer.trim()) {
-      setQuestion({
-        ...question,
-        possibleAnswers: [...question.possibleAnswers, newAnswer],
-      });
+      setPossibleAnswers([...possibleAnswers, newAnswer]);
       setNewAnswer("");
     }
   };
 
   const removeAnswer = (index: number) => {
-    setQuestion({
-      ...question,
-      possibleAnswers: question.possibleAnswers.filter((_, i) => i !== index),
-    });
+    setPossibleAnswers(possibleAnswers.filter((_: string, i: number) => i !== index));
   };
 
   const updateAnswer = (index: number, value: string) => {
-    const updated = [...question.possibleAnswers];
+    const updated = [...possibleAnswers];
     updated[index] = value;
-    setQuestion({
-      ...question,
-      possibleAnswers: updated,
-    });
+    setPossibleAnswers(updated);
   };
 
   return (
     <Card className="p-4 mb-4">
       <h5 className="fw-semibold mb-3">
-        {initialQuestion ? "Edit" : "Create"} Fill in the Blank Question
+        {isEditing ? "Edit" : "Create"} Fill in the Blank Question
       </h5>
 
       <Form>
@@ -104,10 +80,8 @@ export default function FillInTheBlankEditor({
           <Form.Label className="fw-semibold">Question Title</Form.Label>
           <Form.Control
             type="text"
-            value={question.title}
-            onChange={(e) =>
-              setQuestion({ ...question, title: e.target.value })
-            }
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g., Capital of France"
           />
           <Form.Text className="text-muted">
@@ -121,12 +95,9 @@ export default function FillInTheBlankEditor({
           <Form.Control
             type="number"
             min="1"
-            value={question.points}
+            value={points}
             onChange={(e) =>
-              setQuestion({
-                ...question,
-                points: Math.max(1, parseInt(e.target.value) || 1),
-              })
+              setPoints(Math.max(1, parseInt(e.target.value) || 1))
             }
           />
         </Form.Group>
@@ -137,10 +108,8 @@ export default function FillInTheBlankEditor({
           <Form.Control
             as="textarea"
             rows={4}
-            value={question.question}
-            onChange={(e) =>
-              setQuestion({ ...question, question: e.target.value })
-            }
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
             placeholder="Enter the question. Use _______ (7 underscores) to indicate where the blank should appear."
           />
           <Form.Text className="text-muted">
@@ -150,12 +119,12 @@ export default function FillInTheBlankEditor({
         </Form.Group>
 
         {/* Preview */}
-        {question.question && (
+        {prompt && (
           <Card className="mb-3 p-3 bg-light">
             <Form.Label className="fw-semibold mb-2">Preview</Form.Label>
             <div
               dangerouslySetInnerHTML={{
-                __html: question.question
+                __html: prompt
                   .replace(/&/g, "&amp;")
                   .replace(/</g, "&lt;")
                   .replace(/>/g, "&gt;")
@@ -179,9 +148,9 @@ export default function FillInTheBlankEditor({
           </Form.Text>
 
           {/* Answer List */}
-          {question.possibleAnswers.length > 0 && (
+          {possibleAnswers.length > 0 && (
             <ListGroup className="mb-3">
-              {question.possibleAnswers.map((answer, idx) => (
+              {possibleAnswers.map((answer: string, idx: number) => (
                 <ListGroup.Item
                   key={idx}
                   className="d-flex justify-content-between align-items-center"
@@ -195,7 +164,7 @@ export default function FillInTheBlankEditor({
                       placeholder={`Answer ${idx + 1}`}
                     />
                   </div>
-                  {question.possibleAnswers.length > 1 && (
+                  {possibleAnswers.length > 1 && (
                     <Button
                       variant="outline-danger"
                       size="sm"
@@ -236,13 +205,8 @@ export default function FillInTheBlankEditor({
             type="checkbox"
             id="caseSensitive"
             label="Case sensitive answers"
-            checked={question.caseSensitive}
-            onChange={(e) =>
-              setQuestion({
-                ...question,
-                caseSensitive: e.target.checked,
-              })
-            }
+            checked={caseSensitive}
+            onChange={(e) => setCaseSensitive(e.target.checked)}
           />
           <Form.Text className="text-muted ms-3">
             If checked, answers must match exactly (e.g., Paris ≠ paris)
@@ -255,12 +219,12 @@ export default function FillInTheBlankEditor({
             Cancel
           </Button>
           <Button
-            variant="primary"
+            variant="danger"
             onClick={handleSave}
             disabled={
-              !question.title ||
-              !question.question ||
-              question.possibleAnswers.filter((a) => a.trim()).length === 0
+              !title ||
+              !prompt ||
+              possibleAnswers.filter((a: string) => a.trim()).length === 0
             }
           >
             {isEditing ? "Update Question" : "Add Question"}

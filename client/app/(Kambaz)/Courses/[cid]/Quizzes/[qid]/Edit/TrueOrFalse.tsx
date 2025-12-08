@@ -3,26 +3,13 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 
-interface TrueOrFalseProps {
-  question: any;
-  onSave: (q: any) => void;
-  onCancel: () => void;
-  onChangeType?: (type: string) => void;
-}
-
-export default function TrueOrFalseEditor({
-  question,
-  onSave,
-  onCancel,
-  onChangeType,
-}: TrueOrFalseProps) {
-  const [title, setTitle] = useState<string>(question?.title ?? "");
-  const [points, setPoints] = useState<number>(question?.points ?? 1);
-  const [prompt, setPrompt] = useState<string>(question?.question ?? "");
-  const [correct, setCorrect] = useState<boolean>(
-    question?.correctAnswer === undefined
-      ? true
-      : !!question.correctAnswer
+export default function TrueOrFalse({ question, onCancel, onSave, isEditing }: any) {
+  const [title, setTitle] = useState<string>(question?.title || "");
+  const [points, setPoints] = useState<number>(question?.points || 1);
+  const [prompt, setPrompt] = useState<string>(question?.question || "");
+  // Store as index: 0 = True, 1 = False (matching multiple-choice format)
+  const [correct, setCorrect] = useState<number>(
+    question?.correctAnswerIndex ?? 0
   );
 
   const handleSave = () => {
@@ -32,13 +19,13 @@ export default function TrueOrFalseEditor({
       points,
       question: prompt,
       type: "true-false",
-      correctAnswer: correct,
+      possibleAnswers: ["True", "False"],
+      correctAnswerIndex: correct,
     });
   };
 
   return (
     <div className="container mt-3">
-      {/* Title + type + points */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Form.Control
           type="text"
@@ -48,15 +35,8 @@ export default function TrueOrFalseEditor({
           style={{ width: "40%" }}
         />
 
-        {/* TYPE SWITCH DROPDOWN */}
-        <Form.Select
-          value="true-false"
-          onChange={(e) => onChangeType?.(e.target.value)}
-          style={{ width: "200px" }}
-        >
-          <option value="multiple-choice">Multiple Choice</option>
-          <option value="fill-in-the-blank">Fill in the Blank</option>
-          <option value="true-false">True / False</option>
+        <Form.Select value="true-false" disabled style={{ width: "200px" }}>
+          <option>True / False</option>
         </Form.Select>
 
         <div className="d-flex align-items-center">
@@ -65,9 +45,15 @@ export default function TrueOrFalseEditor({
             type="number"
             style={{ width: "80px" }}
             value={points}
-            onChange={(e) => setPoints(Number(e.target.value))}
+            min={0}
+            onChange={(e) => setPoints(Number(e.target.value || 0))}
           />
         </div>
+      </div>
+
+      <div className="text-muted mb-2">
+        Implement a True / False question — enter the prompt and select the
+        correct answer.
       </div>
 
       <div className="mb-3">
@@ -83,11 +69,11 @@ export default function TrueOrFalseEditor({
       <div className="mb-3">
         <label className="fw-bold">Correct Answer:</label>
         <Form.Select
-          value={correct ? "true" : "false"}
-          onChange={(e) => setCorrect(e.target.value === "true")}
+          value={correct}
+          onChange={(e) => setCorrect(Number(e.target.value))}
         >
-          <option value="true">True</option>
-          <option value="false">False</option>
+          <option value={0}>True</option>
+          <option value={1}>False</option>
         </Form.Select>
       </div>
 
@@ -95,8 +81,8 @@ export default function TrueOrFalseEditor({
         <Button variant="secondary" onClick={onCancel}>
           Cancel
         </Button>
-        <Button variant="primary" onClick={handleSave}>
-          Save Question
+        <Button variant="danger" onClick={handleSave}>
+          {isEditing ? "Update Question" : "Add Question"}
         </Button>
       </div>
     </div>
