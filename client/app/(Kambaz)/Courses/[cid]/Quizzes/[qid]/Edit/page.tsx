@@ -593,6 +593,9 @@ export default function QuizEditorPage() {
                       <option value="fill-in-the-blank">
                         Fill in the Blank
                       </option>
+                      <option value="fill-in-the-blank">
+                        True or False
+                      </option>
                     </Form.Select>
 
                     {/* Add Question Button */}
