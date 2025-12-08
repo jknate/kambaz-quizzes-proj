@@ -594,6 +594,7 @@ export default function QuizEditorPage() {
                       <option value="fill-in-the-blank">
                         Fill in the Blank
                       </option>
+                      <option value="true-false">True/False</option>
                     </Form.Select>
 
                     {/* Add Question Button */}
@@ -658,7 +659,26 @@ export default function QuizEditorPage() {
                 onSave={handleAddQuestion}
                 isEditing={editingQuestionIdx !== null}
               />
-            ) : null}
+            ) : questionType === "true-false" ? (
+              <TrueOrFalse
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                        title: "",
+                        points: 1,
+                        type: "true-false",
+                        question: "",
+                        correctAnswer: false,
+                      }
+                }
+                onCancel={handleCancelEditor}
+                onSave={handleAddQuestion}
+                isEditing={editingQuestionIdx !== null}
+              />
+            ) : (
+              null
+            )}
           </Card>
         </Tab>
       </Tabs>
