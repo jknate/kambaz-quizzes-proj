@@ -8,6 +8,7 @@ import AssignmentsRoutes from "./Kambaz/Assignments/routes.js";
 import ModulesRoutes from "./Kambaz/Modules/routes.js";
 import QuizzesRoutes from "./Kambaz/Quizzes/routes.js";
 import QuestionsRoutes from "./Kambaz/Questions/routes.js";
+import QuizAttemptsRoutes from "./Kambaz/QuizAttempts/routes.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -45,6 +46,7 @@ AssignmentsRoutes(app);
 ModulesRoutes(app);
 QuizzesRoutes(app);
 QuestionsRoutes(app);
+QuizAttemptsRoutes(app);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

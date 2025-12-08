@@ -13,8 +13,15 @@ jobs:
       contents: read
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
-        project: [client, server]
+        include:
+          # Client requires Node.js 20+ for Next.js 16
+          - node-version: 20.x
+            project: client
+          # Server supports Node.js 18 and 20
+          - node-version: 18.x
+            project: server
+          - node-version: 20.x
+            project: server
     steps:
       - name: Checkout
         uses: actions/checkout@v4

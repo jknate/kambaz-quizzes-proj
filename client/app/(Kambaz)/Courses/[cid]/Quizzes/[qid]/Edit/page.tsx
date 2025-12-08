@@ -9,25 +9,22 @@ import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
-
+import axios from "axios";
 
 export default function QuizEditorPage() {
   const { cid, qid } = useParams();
   const router = useRouter();
   const dispatch = useDispatch();
 
-  const quizFromStore = useSelector((s: any) =>
-    s.quizzesReducer.quizzes.find((q: any) => q._id === qid)
-  );
-
   const [tab, setTab] = useState("details");
   const [showQuestionEditor, setShowQuestionEditor] = useState(false);
   const [editingQuestionIdx, setEditingQuestionIdx] = useState<number | null>(
     null
   );
-  const [questionType, setQuestionType] = useState<"fill-in-the-blank" | "multiple-choice" | null>(
-    null
-  );
+  const [questionType, setQuestionType] = useState<
+    "fill-in-the-blank" | "multiple-choice" | null
+  >(null);
+  const [loading, setLoading] = useState(true);
 
   const [quiz, setQuiz] = useState<any>({
     title: "",
@@ -49,9 +46,25 @@ export default function QuizEditorPage() {
     questions: [],
   });
 
+  // Fetch quiz with populated questions from MongoDB
   useEffect(() => {
-    if (quizFromStore) setQuiz(quizFromStore);
-  }, [quizFromStore]);
+    const fetchQuiz = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`/api/proxy/quizzes/${qid}`);
+        setQuiz(response.data);
+      } catch (error) {
+        console.error("Error fetching quiz:", error);
+        alert("Failed to load quiz. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (qid) {
+      fetchQuiz();
+    }
+  }, [qid]);
 
   // Points = sum of question points
   const points = useMemo(() => {
@@ -61,14 +74,47 @@ export default function QuizEditorPage() {
     );
   }, [quiz.questions]);
 
-  const handleSave = () => {
-    dispatch(updateQuiz({ ...quiz, points }));
-    router.push(`/Courses/${cid}/Quizzes/${qid}`);
+  const handleSave = async () => {
+    try {
+      // Extract question IDs from the questions array
+      const questionIds = quiz.questions.map((q: any) => q._id || q);
+
+      // Update quiz in MongoDB with question IDs
+      await axios.put(`/api/proxy/quizzes/${qid}`, {
+        ...quiz,
+        points,
+        questions: questionIds,
+      });
+
+      // Update Redux store
+      dispatch(updateQuiz({ ...quiz, points }));
+      router.push(`/Courses/${cid}/Quizzes/${qid}`);
+    } catch (error) {
+      console.error("Error saving quiz:", error);
+      alert("Failed to save quiz. Please try again.");
+    }
   };
 
-  const handleSavePublish = () => {
-    dispatch(updateQuiz({ ...quiz, points, published: true }));
-    router.push(`/Courses/${cid}/Quizzes`);
+  const handleSavePublish = async () => {
+    try {
+      // Extract question IDs from the questions array
+      const questionIds = quiz.questions.map((q: any) => q._id || q);
+
+      // Update quiz in MongoDB with question IDs
+      await axios.put(`/api/proxy/quizzes/${qid}`, {
+        ...quiz,
+        points,
+        published: true,
+        questions: questionIds,
+      });
+
+      // Update Redux store
+      dispatch(updateQuiz({ ...quiz, points, published: true }));
+      router.push(`/Courses/${cid}/Quizzes`);
+    } catch (error) {
+      console.error("Error saving and publishing quiz:", error);
+      alert("Failed to save and publish quiz. Please try again.");
+    }
   };
 
   const handleCancel = () => {
@@ -81,42 +127,134 @@ export default function QuizEditorPage() {
     setShowQuestionEditor(true);
   };
 
-  const handleDeleteQuestion = (question: any) => {
-    const updatedQuestions = (quiz.questions || []).filter(
-      (q: any) => q !== question
-    );
-    setQuiz({ ...quiz, questions: updatedQuestions });
+  const handleDeleteQuestion = async (question: any) => {
+    try {
+      // Delete from MongoDB if it has an ID
+      if (question._id) {
+        await axios.delete(`/api/proxy/questions/${question._id}`);
+      }
+
+      // Remove from local state
+      const updatedQuestions = (quiz.questions || []).filter(
+        (q: any) => q !== question
+      );
+
+      // Calculate new points
+      const newPoints = updatedQuestions.reduce(
+        (t: number, q: any) => t + (q.points || 0),
+        0
+      );
+
+      // Update local state
+      const updatedQuiz = {
+        ...quiz,
+        questions: updatedQuestions,
+        points: newPoints,
+      };
+      setQuiz(updatedQuiz);
+
+      // Save quiz to MongoDB with updated question IDs
+      const questionIds = updatedQuestions.map((q: any) => q._id || q);
+      await axios.put(`/api/proxy/quizzes/${qid}`, {
+        ...updatedQuiz,
+        questions: questionIds,
+      });
+
+      // Update Redux store
+      dispatch(updateQuiz(updatedQuiz));
+    } catch (error) {
+      console.error("Error deleting question:", error);
+      alert("Failed to delete question. Please try again.");
+    }
   };
 
-  const handleAddQuestion = (question: any) => {
-    let updatedQuestions = [...(quiz.questions || [])];
-    if (editingQuestionIdx !== null) {
-      // Update existing question
-      updatedQuestions[editingQuestionIdx] = question;
+  const handleAddQuestion = async (question: any) => {
+    try {
+      let savedQuestion: any;
+      let updatedQuestions: any[];
+
+      if (editingQuestionIdx !== null) {
+        // Update existing question in MongoDB
+        const existingQuestion = quiz.questions[editingQuestionIdx];
+        if (existingQuestion._id) {
+          // Question already exists in DB, update it
+          const response = await axios.put(
+            `/api/proxy/questions/${existingQuestion._id}`,
+            { ...question, course: cid }
+          );
+          savedQuestion = response.data;
+        } else {
+          // Question doesn't have an ID yet, create it
+          const response = await axios.post(`/api/proxy/questions`, {
+            ...question,
+            course: cid,
+          });
+          savedQuestion = response.data;
+        }
+        // Update in local state
+        updatedQuestions = [...(quiz.questions || [])];
+        updatedQuestions[editingQuestionIdx] = savedQuestion;
+      } else {
+        // Create new question in MongoDB
+        const response = await axios.post(`/api/proxy/questions`, {
+          ...question,
+          course: cid,
+        });
+        savedQuestion = response.data;
+
+        // Add to local state
+        updatedQuestions = [...(quiz.questions || [])];
+        updatedQuestions.push(savedQuestion);
+      }
+
+      // Calculate new points
+      const newPoints = updatedQuestions.reduce(
+        (t: number, q: any) => t + (q.points || 0),
+        0
+      );
+
+      // Update local state
+      const updatedQuiz = {
+        ...quiz,
+        questions: updatedQuestions,
+        points: newPoints,
+      };
+      setQuiz(updatedQuiz);
+
+      // Save quiz to MongoDB with updated question IDs
+      const questionIds = updatedQuestions.map((q: any) => q._id || q);
+      await axios.put(`/api/proxy/quizzes/${qid}`, {
+        ...updatedQuiz,
+        questions: questionIds,
+      });
+
+      // Update Redux store
+      dispatch(updateQuiz(updatedQuiz));
+
+      setShowQuestionEditor(false);
+      setEditingQuestionIdx(null);
+      setQuestionType(null);
+    } catch (error) {
+      console.error("Error saving question:", error);
+      alert("Failed to save question. Please try again.");
     }
-    else {
-      // Add new question
-      updatedQuestions.push(question);
-    }
-    setQuiz({ ...quiz, questions: updatedQuestions });
-    setShowQuestionEditor(false);
-    setEditingQuestionIdx(null);
-    setQuestionType(null);
   };
 
   const handleCancelEditor = () => {
     setShowQuestionEditor(false);
     setEditingQuestionIdx(null);
     setQuestionType(null);
-  }
-
-  const handleChangeEditorType = (
-    newType: "multiple-choice" | "fill-in-the-blank"
-  ) => {
-    setQuestionType(newType);
-    setShowQuestionEditor(true);
   };
 
+  if (loading) {
+    return (
+      <div className="container mt-4 text-center">
+        <div className="spinner-border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mt-4" style={{ maxWidth: "950px" }}>
@@ -381,7 +519,7 @@ export default function QuizEditorPage() {
                   <td>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.dueDate}
+                      value={quiz.dueDate || ""}
                       onChange={(e) =>
                         setQuiz({ ...quiz, dueDate: e.target.value })
                       }
@@ -391,7 +529,7 @@ export default function QuizEditorPage() {
                   <td>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.availableDate}
+                      value={quiz.availableDate || ""}
                       onChange={(e) =>
                         setQuiz({
                           ...quiz,
@@ -404,7 +542,7 @@ export default function QuizEditorPage() {
                   <td>
                     <Form.Control
                       type="datetime-local"
-                      value={quiz.untilDate}
+                      value={quiz.untilDate || ""}
                       onChange={(e) =>
                         setQuiz({ ...quiz, untilDate: e.target.value })
                       }
@@ -437,18 +575,39 @@ export default function QuizEditorPage() {
                 <div className="d-flex justify-content-between align-items-center mb-3">
                   <h5 className="fw-semibold mb-0">Questions Editor</h5>
 
-                  <Button
-                    variant="primary"
-                    onClick={() => {
-                      setQuestionType("multiple-choice"); // default type
-                      setEditingQuestionIdx(null);
-                      setShowQuestionEditor(true);
-                    }}
-                  >
-                    + Add Question
-                  </Button>
-                </div>
+                  <div className="d-flex gap-2">
+                    {/* Question Type Dropdown */}
+                    <Form.Select
+                      value={questionType || ""}
+                      onChange={(e) =>
+                        setQuestionType(
+                          e.target.value as
+                            | "multiple-choice"
+                            | "fill-in-the-blank"
+                        )
+                      }
+                      style={{ width: "200px" }}
+                    >
+                      <option value="">Select Question Type</option>
+                      <option value="multiple-choice">Multiple Choice</option>
+                      <option value="fill-in-the-blank">
+                        Fill in the Blank
+                      </option>
+                    </Form.Select>
 
+                    {/* Add Question Button */}
+                    <Button
+                      variant="primary"
+                      disabled={!questionType}
+                      onClick={() => {
+                        setEditingQuestionIdx(null);
+                        setShowQuestionEditor(true);
+                      }}
+                    >
+                      + Add Question
+                    </Button>
+                  </div>
+                </div>
 
                 {/* Questions List */}
                 <div className="mb-3">
@@ -473,31 +632,30 @@ export default function QuizEditorPage() {
               <FillInTheBlankEditor
                 onSave={handleAddQuestion}
                 onCancel={handleCancelEditor}
-                onChangeType={handleChangeEditorType}
+                isEditing={editingQuestionIdx !== null}
                 initialQuestion={
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : undefined
                 }
               />
-
             ) : questionType === "multiple-choice" ? (
               <MultipleChoiceEditor
                 question={
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : {
-                      title: "",
-                      points: 1,
-                      type: "multiple-choice",
-                      question: "",
-                      possibleAnswers: [""],
-                      correctAnswerIndex: 0,
-                    }
+                        title: "",
+                        points: 1,
+                        type: "multiple-choice",
+                        question: "",
+                        possibleAnswers: [""],
+                        correctAnswerIndex: 0,
+                      }
                 }
                 onCancel={handleCancelEditor}
                 onSave={handleAddQuestion}
-                onChangeType={handleChangeEditorType}
+                isEditing={editingQuestionIdx !== null}
               />
             ) : null}
           </Card>

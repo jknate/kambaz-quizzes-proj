@@ -19,6 +19,7 @@ interface FillInTheBlankEditorProps {
   onCancel: () => void;
   onChangeType: (type: "multiple-choice" | "fill-in-the-blank") => void;
   initialQuestion?: FillInTheBlankQuestion;
+  isEditing?: boolean;
 }
 
 export default function FillInTheBlankEditor({
@@ -26,6 +27,7 @@ export default function FillInTheBlankEditor({
   onCancel,
   onChangeType,
   initialQuestion,
+  isEditing,
 }: FillInTheBlankEditorProps) {
   const [question, setQuestion] = useState<FillInTheBlankQuestion>(
     initialQuestion || {
@@ -261,7 +263,7 @@ export default function FillInTheBlankEditor({
             variant="primary"
             onClick={handleSave}
           >
-            {initialQuestion ? "Update Question" : "Add Question"}
+            {isEditing ? "Update Question" : "Add Question"}
           </Button>
         </div>
       </Form>

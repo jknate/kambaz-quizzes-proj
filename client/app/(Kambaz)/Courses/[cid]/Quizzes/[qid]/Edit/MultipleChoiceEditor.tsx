@@ -1,30 +1,21 @@
+
 "use client";
 
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
-import { useDispatch } from "react-redux";
-import { updateQuestion } from "../../questionsReducer";
 
-interface MultipleChoiceEditorProps {
-  question: any;
-  onSave: (q: any) => void;
-  onCancel: () => void;
-  onChangeType: (newType: "multiple-choice" | "fill-in-the-blank") => void;
-}
-
+// Dynamically load the WYSIWYG
 export default function MultipleChoiceEditor({
   question,
-  onSave,
   onCancel,
-  onChangeType,
-}: MultipleChoiceEditorProps) {
-  const dispatch = useDispatch();
-
+  onSave,
+  isEditing,
+}: any) {
   const [title, setTitle] = useState(question.title || "");
   const [points, setPoints] = useState(question.points || 1);
   const [prompt, setPrompt] = useState(question.question || "");
 
-  // Array of answers
+  // Array of answer strings
   const [answers, setAnswers] = useState<string[]>(
     question.possibleAnswers || [""]
   );
@@ -39,7 +30,7 @@ export default function MultipleChoiceEditor({
     setAnswers([...answers, ""]);
   };
 
-  /** Update text of one answer */
+  /** Update the text of one answer */
   const updateAnswer = (index: number, value: string) => {
     const updated = [...answers];
     updated[index] = value;
@@ -50,13 +41,14 @@ export default function MultipleChoiceEditor({
   const removeAnswer = (index: number) => {
     const updated = answers.filter((_, i) => i !== index);
 
+    // Adjust correct answer index if needed
     if (correct === index) setCorrect(0);
     else if (correct > index) setCorrect(correct - 1);
 
     setAnswers(updated);
   };
 
-  /** Save question */
+  /** Save the question */
   const handleSave = () => {
     onSave({
       ...question,
@@ -71,9 +63,8 @@ export default function MultipleChoiceEditor({
 
   return (
     <div className="container mt-3">
-      {/* Title + Type + Points */}
+      {/* Title + type + points */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        {/* Title */}
         <Form.Control
           type="text"
           placeholder="Question title"
@@ -82,19 +73,14 @@ export default function MultipleChoiceEditor({
           style={{ width: "40%" }}
         />
 
-        {/* QUESTION TYPE SWITCHER */}
         <Form.Select
           value="multiple-choice"
-          onChange={(e) =>
-            onChangeType(e.target.value as "multiple-choice" | "fill-in-the-blank")
-          }
+          disabled
           style={{ width: "200px" }}
         >
-          <option value="multiple-choice">Multiple Choice</option>
-          <option value="fill-in-the-blank">Fill in the Blank</option>
+          <option>Multiple Choice</option>
         </Form.Select>
 
-        {/* Points */}
         <div className="d-flex align-items-center">
           <span className="me-2 fw-bold">pts:</span>
           <Form.Control
@@ -111,7 +97,7 @@ export default function MultipleChoiceEditor({
         Enter your question and multiple answers, then select the correct one.
       </div>
 
-      {/* Prompt */}
+      {/* WYSIWYG question prompt */}
       <div className="mb-3">
         <label className="fw-bold mb-1">Question:</label>
         <Form.Control
@@ -122,12 +108,13 @@ export default function MultipleChoiceEditor({
         />
       </div>
 
-      {/* Answers List */}
+      {/* Answers list */}
       <div className="mb-3">
         <label className="fw-bold">Answers:</label>
 
         {answers.map((answer, idx) => (
           <div key={idx} className="d-flex align-items-center gap-2 mb-2">
+            {/* Radio button for correct answer */}
             <Form.Check
               type="radio"
               name="correct"
@@ -135,6 +122,7 @@ export default function MultipleChoiceEditor({
               onChange={() => setCorrect(idx)}
             />
 
+            {/* Answer input */}
             <Form.Control
               type="text"
               placeholder="Possible Answer"
@@ -142,6 +130,7 @@ export default function MultipleChoiceEditor({
               onChange={(e) => updateAnswer(idx, e.target.value)}
             />
 
+            {/* Delete button */}
             {answers.length > 1 && (
               <Button
                 variant="outline-danger"
@@ -165,7 +154,7 @@ export default function MultipleChoiceEditor({
           Cancel
         </Button>
         <Button variant="danger" onClick={handleSave}>
-          {question._id ? "Update Question" : "Add Question"}
+          {isEditing ? "Update Question" : "Add Question"}
         </Button>
       </div>
     </div>
