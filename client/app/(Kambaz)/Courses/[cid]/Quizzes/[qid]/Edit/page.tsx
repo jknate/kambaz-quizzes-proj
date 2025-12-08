@@ -9,6 +9,7 @@ import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
+import TrueOrFalse from "./TrueOrFalse";
 
 
 export default function QuizEditorPage() {
@@ -443,6 +444,7 @@ export default function QuizEditorPage() {
                       <option value="">Select Question Type</option>
                       <option value="multiple-choice">Multiple Choice</option>
                       <option value="fill-in-the-blank">Fill in the Blank</option>
+                      <option value="true-false">True / False</option>
                     </Form.Select>
 
                     {/* Add Question Button */}
@@ -502,6 +504,22 @@ export default function QuizEditorPage() {
                       possibleAnswers: [""],
                       correctAnswerIndex: 0,
                     }
+                }
+                onCancel={handleCancelEditor}
+                onSave={handleAddQuestion}
+              />
+            ) : questionType === "true-false" ? (
+              <TrueOrFalse
+                question={
+                  editingQuestionIdx !== null
+                    ? quiz.questions[editingQuestionIdx]
+                    : {
+                        title: "",
+                        points: 1,
+                        type: "true-false",
+                        text: "",
+                        correctAnswer: true,
+                      }
                 }
                 onCancel={handleCancelEditor}
                 onSave={handleAddQuestion}
