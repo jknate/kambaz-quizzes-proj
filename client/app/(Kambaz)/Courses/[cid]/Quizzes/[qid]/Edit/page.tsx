@@ -9,8 +9,8 @@ import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
-import axios from "axios";import TrueOrFalse from "./TrueOrFalse";
-
+import axios from "axios";
+import TrueOrFalse from "./TrueOrFalse";
 
 export default function QuizEditorPage() {
   const { cid, qid } = useParams();
@@ -128,16 +128,16 @@ export default function QuizEditorPage() {
     setShowQuestionEditor(true);
   };
 
-  const handleDeleteQuestion = async (question: any) => {
-    try {
-      // Delete from MongoDB if it has an ID
-      if (question._id) {
-        await axios.delete(`/api/proxy/questions/${question._id}`);
-      }
+  const handleDeleteQuestion = async (questionId: string | undefined) => {
+    if (!questionId) return;
 
-      // Remove from local state
+    try {
+      // Delete from MongoDB
+      await axios.delete(`/api/proxy/questions/${questionId}`);
+
+      // Remove from local state - compare by _id
       const updatedQuestions = (quiz.questions || []).filter(
-        (q: any) => q !== question
+        (q: any) => q._id !== questionId
       );
 
       // Calculate new points
@@ -684,9 +684,7 @@ export default function QuizEditorPage() {
                 onSave={handleAddQuestion}
                 isEditing={editingQuestionIdx !== null}
               />
-            ) : (
-              null
-            )}
+            ) : null}
           </Card>
         </Tab>
       </Tabs>
