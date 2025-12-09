@@ -26,6 +26,7 @@ export default function QuizPreviewPage() {
   const [latestAttempt, setLatestAttempt] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   // Memoize questions to prevent dependency issues
   const questions = useMemo(() => quiz?.questions || [], [quiz]);
@@ -112,7 +113,30 @@ export default function QuizPreviewPage() {
 
       if (q.type === "multiple-choice") {
         // Check if selected answer matches correct answer index
-        isCorrect = userAnswer === q.correctAnswerIndex;
+        // userAnswer should be a number (the index)
+        // Ensure both are numbers for strict comparison
+        const userAnswerNum =
+          typeof userAnswer === "number" ? userAnswer : Number(userAnswer);
+        const correctAnswerNum =
+          typeof q.correctAnswerIndex === "number"
+            ? q.correctAnswerIndex
+            : Number(q.correctAnswerIndex);
+        isCorrect =
+          !isNaN(userAnswerNum) &&
+          !isNaN(correctAnswerNum) &&
+          userAnswerNum === correctAnswerNum;
+
+        // Debug logging
+        console.log(`MC Question ${idx}:`, {
+          userAnswer,
+          userAnswerNum,
+          correctAnswerIndex: q.correctAnswerIndex,
+          correctAnswerNum,
+          isCorrect,
+          bothNumbers:
+            typeof userAnswer === "number" &&
+            typeof q.correctAnswerIndex === "number",
+        });
       } else if (q.type === "fill-in-the-blank") {
         // Check if user answer matches any possible answer
         const possibleAnswers = q.possibleAnswers || [];
@@ -125,8 +149,16 @@ export default function QuizPreviewPage() {
           );
         }
       } else if (q.type === "true-false") {
-        // Check if user answer matches correct answer
-        isCorrect = userAnswer === q.correctAnswer;
+        // Support both old format (correctAnswer as string) and new format (correctAnswerIndex)
+        if (q.correctAnswerIndex !== undefined) {
+          // New format: correctAnswerIndex (0 = True, 1 = False)
+          // userAnswer should be a number
+          isCorrect = userAnswer === q.correctAnswerIndex;
+        } else if (q.correctAnswer !== undefined) {
+          // Old format: correctAnswer as string ("true" or "false")
+          // userAnswer should be a string
+          isCorrect = userAnswer === q.correctAnswer;
+        }
       }
 
       if (isCorrect) {
@@ -208,7 +240,23 @@ export default function QuizPreviewPage() {
     setUserAnswers({});
     setIsSubmitted(false);
     setLatestAttempt(null);
+    setCurrentQuestionIndex(0);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Navigation handlers
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const handlePrev = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   if (!quiz) return <div className="p-4">Quiz not found.</div>;
@@ -311,169 +359,222 @@ export default function QuizPreviewPage() {
         </div>
       </Card>
 
-      {/* Questions */}
-      {questions.map((question: any, idx: number) => {
-        const result = isSubmitted ? results[idx] : null;
-        const userAnswer = userAnswers[idx];
+      {/* Question Progress Indicator */}
+      {questions.length > 0 && (
+        <div className="mb-3 text-center">
+          <Badge bg="primary" className="fs-6 px-3 py-2">
+            Question {currentQuestionIndex + 1} of {questions.length}
+          </Badge>
+        </div>
+      )}
 
-        return (
-          <Card key={idx} className="mb-4 p-4">
-            {/* Question Header */}
-            <div className="d-flex justify-content-between align-items-start mb-3">
-              <div className="flex-grow-1">
-                <div className="d-flex align-items-center gap-2 mb-2">
-                  <h5 className="fw-bold mb-0">Question {idx + 1}</h5>
-                  {result && (
-                    <Badge bg={result.isCorrect ? "success" : "danger"}>
-                      {result.isCorrect ? (
-                        <>
-                          <FaCheckCircle className="me-1" />
-                          Correct
-                        </>
-                      ) : (
-                        <>
-                          <FaTimesCircle className="me-1" />
-                          Incorrect
-                        </>
-                      )}
-                    </Badge>
+      {/* Single Question Display */}
+      {questions.length > 0 &&
+        (() => {
+          const idx = currentQuestionIndex;
+          const question = questions[idx];
+          const result = isSubmitted ? results[idx] : null;
+          const userAnswer = userAnswers[idx];
+
+          return (
+            <Card key={idx} className="mb-4 p-4">
+              {/* Question Header */}
+              <div className="d-flex justify-content-between align-items-start mb-3">
+                <div className="flex-grow-1">
+                  <div className="d-flex align-items-center gap-2 mb-2">
+                    <h5 className="fw-bold mb-0">Question {idx + 1}</h5>
+                    {result && (
+                      <Badge bg={result.isCorrect ? "success" : "danger"}>
+                        {result.isCorrect ? (
+                          <>
+                            <FaCheckCircle className="me-1" />
+                            Correct
+                          </>
+                        ) : (
+                          <>
+                            <FaTimesCircle className="me-1" />
+                            Incorrect
+                          </>
+                        )}
+                      </Badge>
+                    )}
+                  </div>
+                  {question.title && (
+                    <p className="text-muted mb-2">{question.title}</p>
                   )}
                 </div>
-                {question.title && (
-                  <p className="text-muted mb-2">{question.title}</p>
-                )}
+                <Badge bg="secondary" className="ms-2">
+                  {question.points} {question.points === 1 ? "pt" : "pts"}
+                </Badge>
               </div>
-              <Badge bg="secondary" className="ms-2">
-                {question.points} {question.points === 1 ? "pt" : "pts"}
-              </Badge>
-            </div>
 
-            {/* Question Text */}
-            <p className="mb-3">{question.question}</p>
+              {/* Question Text */}
+              <p className="mb-3">{question.question}</p>
 
-            {/* Multiple Choice Questions */}
-            {question.type === "multiple-choice" && (
-              <div>
-                {(question.possibleAnswers || []).map(
-                  (answer: string, ansIdx: number) => {
-                    const isSelected = userAnswer === ansIdx;
-                    const isCorrectAnswer =
-                      ansIdx === question.correctAnswerIndex;
-                    const showCorrect = isSubmitted && isCorrectAnswer;
-                    const showIncorrect =
-                      isSubmitted && isSelected && !isCorrectAnswer;
+              {/* Multiple Choice Questions */}
+              {question.type === "multiple-choice" && (
+                <div>
+                  {(question.possibleAnswers || []).map(
+                    (answer: string, ansIdx: number) => {
+                      const isSelected = userAnswer === ansIdx;
+                      const isCorrectAnswer =
+                        ansIdx === question.correctAnswerIndex;
+                      const showCorrect = isSubmitted && isCorrectAnswer;
+                      const showIncorrect =
+                        isSubmitted && isSelected && !isCorrectAnswer;
 
-                    return (
-                      <Form.Check
-                        key={ansIdx}
-                        type="radio"
-                        id={`q${idx}-a${ansIdx}`}
-                        name={`question-${idx}`}
-                        label={
-                          <span>
-                            {answer}
-                            {showCorrect && (
-                              <Badge bg="success" className="ms-2">
-                                Correct Answer
-                              </Badge>
-                            )}
-                            {showIncorrect && (
-                              <Badge bg="danger" className="ms-2">
-                                Your Answer
-                              </Badge>
-                            )}
-                          </span>
-                        }
-                        checked={isSelected}
-                        onChange={() =>
-                          !isSubmitted && handleAnswerChange(idx, ansIdx)
-                        }
-                        disabled={isSubmitted}
-                        className={`mb-2 ${
-                          showCorrect ? "text-success fw-bold" : ""
-                        } ${showIncorrect ? "text-danger" : ""}`}
-                      />
-                    );
-                  }
-                )}
-              </div>
-            )}
+                      return (
+                        <Form.Check
+                          key={ansIdx}
+                          type="radio"
+                          id={`q${idx}-a${ansIdx}`}
+                          name={`question-${idx}`}
+                          label={
+                            <span>
+                              {answer}
+                              {showCorrect && (
+                                <Badge bg="success" className="ms-2">
+                                  Correct Answer
+                                </Badge>
+                              )}
+                              {showIncorrect && (
+                                <Badge bg="danger" className="ms-2">
+                                  Your Answer
+                                </Badge>
+                              )}
+                            </span>
+                          }
+                          checked={isSelected}
+                          onChange={() =>
+                            !isSubmitted && handleAnswerChange(idx, ansIdx)
+                          }
+                          disabled={isSubmitted}
+                          className={`mb-2 ${
+                            showCorrect ? "text-success fw-bold" : ""
+                          } ${showIncorrect ? "text-danger" : ""}`}
+                        />
+                      );
+                    }
+                  )}
+                </div>
+              )}
 
-            {/* True/False Questions */}
-            {question.type === "true-false" && (
-              <div>
-                {["true", "false"].map((option) => {
-                  const isSelected = userAnswer === option;
-                  const isCorrectAnswer = question.correctAnswer === option;
-                  const showCorrect = isSubmitted && isCorrectAnswer;
-                  const showIncorrect =
-                    isSubmitted && isSelected && !isCorrectAnswer;
+              {/* True/False Questions */}
+              {question.type === "true-false" && (
+                <div>
+                  {(() => {
+                    // Support both old format (correctAnswer as string) and new format (correctAnswerIndex)
+                    const useIndexFormat =
+                      question.correctAnswerIndex !== undefined;
+                    const options = useIndexFormat
+                      ? [
+                          { label: "True", value: 0 },
+                          { label: "False", value: 1 },
+                        ]
+                      : [
+                          { label: "True", value: "true" },
+                          { label: "False", value: "false" },
+                        ];
 
-                  return (
-                    <Form.Check
-                      key={option}
-                      type="radio"
-                      id={`q${idx}-${option}`}
-                      name={`question-${idx}`}
-                      label={
-                        <span>
-                          {option.charAt(0).toUpperCase() + option.slice(1)}
-                          {showCorrect && (
-                            <Badge bg="success" className="ms-2">
-                              Correct Answer
-                            </Badge>
-                          )}
-                          {showIncorrect && (
-                            <Badge bg="danger" className="ms-2">
-                              Your Answer
-                            </Badge>
-                          )}
-                        </span>
-                      }
-                      checked={isSelected}
-                      onChange={() =>
-                        !isSubmitted && handleAnswerChange(idx, option)
-                      }
-                      disabled={isSubmitted}
-                      className={`mb-2 ${
-                        showCorrect ? "text-success fw-bold" : ""
-                      } ${showIncorrect ? "text-danger" : ""}`}
-                    />
-                  );
-                })}
-              </div>
-            )}
+                    return options.map((option) => {
+                      const isSelected = userAnswer === option.value;
+                      const isCorrectAnswer = useIndexFormat
+                        ? question.correctAnswerIndex === option.value
+                        : question.correctAnswer === option.value;
+                      const showCorrect = isSubmitted && isCorrectAnswer;
+                      const showIncorrect =
+                        isSubmitted && isSelected && !isCorrectAnswer;
 
-            {/* Fill in the Blank Questions */}
-            {question.type === "fill-in-the-blank" && (
-              <div>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter your answer"
-                  value={userAnswer || ""}
-                  onChange={(e) =>
-                    !isSubmitted && handleAnswerChange(idx, e.target.value)
-                  }
-                  disabled={isSubmitted}
-                  className={
-                    isSubmitted
-                      ? result?.isCorrect
-                        ? "border-success"
-                        : "border-danger"
-                      : ""
-                  }
-                />
-                {isSubmitted && !result?.isCorrect && (
-                  <div className="mt-2 text-muted small">
-                    <strong>Correct answer(s):</strong>{" "}
-                    {(question.possibleAnswers || []).join(", ")}
-                  </div>
-                )}
-              </div>
-            )}
-          </Card>
-        );
-      })}
+                      return (
+                        <Form.Check
+                          key={option.value}
+                          type="radio"
+                          id={`q${idx}-${option.value}`}
+                          name={`question-${idx}`}
+                          label={
+                            <span>
+                              {option.label}
+                              {showCorrect && (
+                                <Badge bg="success" className="ms-2">
+                                  Correct Answer
+                                </Badge>
+                              )}
+                              {showIncorrect && (
+                                <Badge bg="danger" className="ms-2">
+                                  Your Answer
+                                </Badge>
+                              )}
+                            </span>
+                          }
+                          checked={isSelected}
+                          onChange={() =>
+                            !isSubmitted &&
+                            handleAnswerChange(idx, option.value)
+                          }
+                          disabled={isSubmitted}
+                          className={`mb-2 ${
+                            showCorrect ? "text-success fw-bold" : ""
+                          } ${showIncorrect ? "text-danger" : ""}`}
+                        />
+                      );
+                    });
+                  })()}
+                </div>
+              )}
+
+              {/* Fill in the Blank Questions */}
+              {question.type === "fill-in-the-blank" && (
+                <div>
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter your answer"
+                    value={userAnswer || ""}
+                    onChange={(e) =>
+                      !isSubmitted && handleAnswerChange(idx, e.target.value)
+                    }
+                    disabled={isSubmitted}
+                    className={
+                      isSubmitted
+                        ? result?.isCorrect
+                          ? "border-success"
+                          : "border-danger"
+                        : ""
+                    }
+                  />
+                  {isSubmitted && !result?.isCorrect && (
+                    <div className="mt-2 text-muted small">
+                      <strong>Correct answer(s):</strong>{" "}
+                      {(question.possibleAnswers || []).join(", ")}
+                    </div>
+                  )}
+                </div>
+              )}
+            </Card>
+          );
+        })()}
+
+      {/* Navigation Buttons */}
+      {questions.length > 0 && (
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <Button
+            variant="outline-secondary"
+            onClick={handlePrev}
+            disabled={currentQuestionIndex === 0}
+          >
+            ← Previous
+          </Button>
+          <div className="text-muted">
+            {Object.keys(userAnswers).length} of {questions.length} answered
+          </div>
+          <Button
+            variant="outline-secondary"
+            onClick={handleNext}
+            disabled={currentQuestionIndex === questions.length - 1}
+          >
+            Next →
+          </Button>
+        </div>
+      )}
 
       {/* Action Buttons */}
       <div className="d-flex justify-content-center gap-3 mt-4">

@@ -10,6 +10,7 @@ const questionSchema = new mongoose.Schema(
     question: String,
     possibleAnswers: [String],
     caseSensitive: Boolean,
+    correctAnswerIndex: Number, // For multiple-choice and true-false questions
   },
   { collection: "questions" }
 );

@@ -23,8 +23,8 @@ export default function QuizEditorPage() {
     null
   );
   const [questionType, setQuestionType] = useState<
-    "fill-in-the-blank" | "multiple-choice" | null
-  >(null);
+    "fill-in-the-blank" | "multiple-choice" | "true-false"
+  >("multiple-choice");
   const [loading, setLoading] = useState(true);
 
   const [quiz, setQuiz] = useState<any>({
@@ -234,7 +234,7 @@ export default function QuizEditorPage() {
 
       setShowQuestionEditor(false);
       setEditingQuestionIdx(null);
-      setQuestionType(null);
+      setQuestionType("" as any);
     } catch (error) {
       console.error("Error saving question:", error);
       alert("Failed to save question. Please try again.");
@@ -244,7 +244,7 @@ export default function QuizEditorPage() {
   const handleCancelEditor = () => {
     setShowQuestionEditor(false);
     setEditingQuestionIdx(null);
-    setQuestionType(null);
+    setQuestionType("" as any);
   };
 
   if (loading) {
