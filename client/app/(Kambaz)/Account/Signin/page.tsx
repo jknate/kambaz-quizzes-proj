@@ -49,6 +49,32 @@ export default function Signin() {
       <Link id="wd-signup-link" href="/Account/Signup">
         Sign up
       </Link>
+
+      <hr className="my-4" />
+
+      <div className="mt-4">
+        <h5 className="mb-3">About This Project</h5>
+        <h4 className="fw-semibold mb-3">Section: CS4550.11597.202610</h4>
+        <div className="mb-2">
+          <strong>GitHub Repository (Client and Server):</strong>{" "}
+          <a
+            href="https://github.com/jknate/kambaz-quizzes-proj"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary"
+          >
+            https://github.com/jknate/kambaz-quizzes-proj
+          </a>
+        </div>
+        <div>
+          <strong>Team Members:</strong>
+          <ul className="mt-2">
+            <li>Kelsey Wandera</li>
+            <li>Seamus Mufarinya</li>
+            <li>Nathaniel Kilonzo</li>
+          </ul>
+        </div>
+      </div>
     </div>
   );
 }
