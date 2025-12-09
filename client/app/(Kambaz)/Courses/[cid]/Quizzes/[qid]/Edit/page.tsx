@@ -9,7 +9,7 @@ import { updateQuiz } from "../../reducer";
 import FillInTheBlankEditor from "./FillInTheBlankEditor";
 import QuestionsList from "./QuestionsList";
 import MultipleChoiceEditor from "./MultipleChoiceEditor";
-import axios from "axios";import TrueOrFalse from "./TrueOrFalse";
+import axios from "axios"; import TrueOrFalse from "./TrueOrFalse";
 
 
 export default function QuizEditorPage() {
@@ -22,9 +22,11 @@ export default function QuizEditorPage() {
   const [editingQuestionIdx, setEditingQuestionIdx] = useState<number | null>(
     null
   );
+
   const [questionType, setQuestionType] = useState<
-    "fill-in-the-blank" | "multiple-choice" | null
-  >(null);
+    "fill-in-the-blank" | "multiple-choice" | "true-false"
+  >("multiple-choice");
+
   const [loading, setLoading] = useState(true);
 
   const [quiz, setQuiz] = useState<any>({
@@ -234,7 +236,7 @@ export default function QuizEditorPage() {
 
       setShowQuestionEditor(false);
       setEditingQuestionIdx(null);
-      setQuestionType(null);
+      setQuestionType("" as any);
     } catch (error) {
       console.error("Error saving question:", error);
       alert("Failed to save question. Please try again.");
@@ -244,7 +246,7 @@ export default function QuizEditorPage() {
   const handleCancelEditor = () => {
     setShowQuestionEditor(false);
     setEditingQuestionIdx(null);
-    setQuestionType(null);
+    setQuestionType("" as any);
   };
 
   if (loading) {
@@ -583,8 +585,8 @@ export default function QuizEditorPage() {
                       onChange={(e) =>
                         setQuestionType(
                           e.target.value as
-                            | "multiple-choice"
-                            | "fill-in-the-blank"
+                          | "multiple-choice"
+                          | "fill-in-the-blank"
                         )
                       }
                       style={{ width: "200px" }}
@@ -636,13 +638,13 @@ export default function QuizEditorPage() {
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : {
-                        title: "",
-                        points: 1,
-                        type: "fill-in-the-blank",
-                        question: "",
-                        possibleAnswers: [""],
-                        caseSensitive: false,
-                      }
+                      title: "",
+                      points: 1,
+                      type: "fill-in-the-blank",
+                      question: "",
+                      possibleAnswers: [""],
+                      caseSensitive: false,
+                    }
                 }
                 onSave={handleAddQuestion}
                 onCancel={handleCancelEditor}
@@ -654,13 +656,13 @@ export default function QuizEditorPage() {
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : {
-                        title: "",
-                        points: 1,
-                        type: "multiple-choice",
-                        question: "",
-                        possibleAnswers: [""],
-                        correctAnswerIndex: 0,
-                      }
+                      title: "",
+                      points: 1,
+                      type: "multiple-choice",
+                      question: "",
+                      possibleAnswers: [""],
+                      correctAnswerIndex: 0,
+                    }
                 }
                 onCancel={handleCancelEditor}
                 onSave={handleAddQuestion}
@@ -672,13 +674,13 @@ export default function QuizEditorPage() {
                   editingQuestionIdx !== null
                     ? quiz.questions[editingQuestionIdx]
                     : {
-                        title: "",
-                        points: 1,
-                        type: "true-false",
-                        question: "",
-                        possibleAnswers: ["True", "False"],
-                        correctAnswerIndex: 0,
-                      }
+                      title: "",
+                      points: 1,
+                      type: "true-false",
+                      question: "",
+                      possibleAnswers: ["True", "False"],
+                      correctAnswerIndex: 0,
+                    }
                 }
                 onCancel={handleCancelEditor}
                 onSave={handleAddQuestion}
